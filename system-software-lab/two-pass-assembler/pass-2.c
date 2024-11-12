@@ -124,7 +124,7 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
                 print_xbpe += 1;
 
             // print everything in a temp file.
-            fprintf(temp_obj, "%2x%1x%03x\n", print_opcode, print_xbpe, target_address);
+            fprintf(temp_obj, "%02x%1x%03x\n", print_opcode, print_xbpe, target_address);
         }
         else if (strcmp(opcode, "BYTE") == 0 || strcmp(opcode, "WORD") == 0)
         {
