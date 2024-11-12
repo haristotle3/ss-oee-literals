@@ -96,7 +96,6 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
                 fclose(symbol_table);
             }
             print_opcode = opcode_value;
-            printf("OPCODE %x\n", print_opcode);
             // Now finding target address.
             // Check for n and i flag
             if (searched_symbol[0] == '#')
@@ -106,12 +105,10 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
             else // if neither immediate nor indirect
                 print_opcode += 3;
 
-            printf("OPCODE %x\n", print_opcode);
             // Check PC relative
             if ((symbol_value - program_counter) >= -2048 &&
                 (symbol_value - program_counter) <= 2047)
             {
-                printf("%s %d\n", searched_symbol, symbol_value);
                 target_address = (symbol_value - program_counter);
                 print_xbpe += 1 << 1;
             }
@@ -127,13 +124,11 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
                 print_xbpe += 1;
 
             // print everything in a temp file.
-            fprintf(temp_obj, "%2x%1x%3x\n", print_opcode, print_xbpe, target_address);
-            printf("%2x%1x%3x\n", print_opcode, print_xbpe, target_address);
+            fprintf(temp_obj, "%2x%1x%03x\n", print_opcode, print_xbpe, target_address);
         }
         else if (strcmp(opcode, "BYTE") == 0 || strcmp(opcode, "WORD") == 0)
         {
             fprintf(temp_obj, "%06x\n", operand);
-            printf("%06x\n", operand);
         }
     }
 
