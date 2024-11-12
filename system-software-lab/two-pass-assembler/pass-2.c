@@ -54,7 +54,7 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
 
     while (fscanf(input_file, "%s\t%s\t%s\t%s", location, label, opcode, operand) > 0)
     {
-        fscanf(input_file, "%d\t%*s\t%*s\t%*s", &program_counter);
+        fscanf(input_file, "%x\t%*s\t%*s\t%*s", &program_counter);
         int print_opcode = 0;
         int print_xbpe = 0;
         int target_address = 0;
@@ -62,10 +62,10 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
         // search OPTAB for OPCODE.
         FILE *opcode_table = fopen("OPTAB.txt", "r");
         char searched_opcode[MAX_TOKEN_LENGTH];
-        char opcode_value[MAX_TOKEN_LENGTH];
+        int opcode_value;
 
         int opcode_found = 0;
-        while (fscanf(opcode_table, "%s\t%s", searched_opcode, opcode_value) > 0)
+        while (fscanf(opcode_table, "%s\t%x", searched_opcode, &opcode_value) > 0)
         {
             if (strcmp(searched_opcode, opcode) == 0)
             {
@@ -78,14 +78,14 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
         {
             // Find symbol in symbol field.
             char searched_symbol[MAX_TOKEN_LENGTH];
-            char symbol_value[MAX_TOKEN_LENGTH];
+            int symbol_value;
 
             if (strcmp(operand, "****") != 0)
             {
                 FILE *symbol_table = fopen("SYMTAB.txt", "r");
 
                 int symbol_found = 0;
-                while (fscanf(symbol_table, "%s\t%s", searched_symbol, symbol_value) > 0)
+                while (fscanf(symbol_table, "%s\t%x", searched_symbol, &symbol_value) > 0)
                 {
                     if (strcmp(searched_symbol, operand) == 0)
                     {
@@ -95,25 +95,27 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
                 }
                 fclose(symbol_table);
             }
-            print_opcode = atoi(opcode_value);
-
+            print_opcode = opcode_value;
+            printf("OPCODE %x\n", print_opcode);
             // Now finding target address.
             // Check for n and i flag
             if (searched_symbol[0] == '#')
                 print_opcode += 1;
-            else if (searched_symbol[0 == '@'])
+            else if (searched_symbol[0] == '@')
                 print_opcode += 2;
             else // if neither immediate nor indirect
                 print_opcode += 3;
 
+            printf("OPCODE %x\n", print_opcode);
             // Check PC relative
-            if ((atoi(symbol_value) - program_counter) >= -2048 &&
-                (atoi(symbol_value) - program_counter) <= 2047)
+            if ((symbol_value - program_counter) >= -2048 &&
+                (symbol_value - program_counter) <= 2047)
             {
-                target_address = (atoi(symbol_value) - program_counter);
+                printf("%s %d\n", searched_symbol, symbol_value);
+                target_address = (symbol_value - program_counter);
                 print_xbpe += 1 << 1;
             }
-            else if ((atoi(symbol_value) - program_counter) <= 4095)
+            else if ((symbol_value - program_counter) <= 4095)
             {
                 // Base relative.
             }
