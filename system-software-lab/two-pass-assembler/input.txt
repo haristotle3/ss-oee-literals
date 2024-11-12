@@ -1,7 +1,6 @@
 COPY    START   2000
 FIRST   STL     RETADR
 ****    LDB     #LENGTH
-****    BASE    LENGTH
 CLOOP   +JSUB   RDREC
 ****    LDA     LENGTH
 ****    COMP    #0
@@ -12,10 +11,11 @@ ENDFIL  LDA     EOF
 ****    STA     BUFFER
 ****    LDA     #3
 ****    STA     LENGTH
+****    ADDR    S,T
 ****    +JSUB   WRREC
 ****    J       @RETADR
 EOF     BYTE    C'EOF'
 RETADR  RESW    1
 LENGTH  RESW    1
 BUFFER  RESB    4096
-END
+****    END

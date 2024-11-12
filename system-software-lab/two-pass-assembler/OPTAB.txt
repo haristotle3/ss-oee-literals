@@ -1,8 +1,10 @@
 STL     14
 LDB     68    
 JSUB    48
++JSUB    48
 LDA     00
 COMP    28
 JEQ     30
 J       3C
 STA     0C
+END
