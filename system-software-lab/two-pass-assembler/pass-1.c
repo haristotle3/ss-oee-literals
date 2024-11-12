@@ -28,7 +28,7 @@ int main()
     fclose(intermediate_file);
     fclose(symbol_table);
 
-    fprintf(length, "The length of the assembly program is: %d", program_length);
+    fprintf(length, "%d", program_length);
     return 0;
 }
 
@@ -49,7 +49,7 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
         LOCCTR = START;
 
         // First line doesn't require a location.
-        fprintf(intermediate_file, "\t\t%s\t%s\t%s\n", label, opcode, operand);
+        fprintf(intermediate_file, "%s\t%s\t%s\n", label, opcode, operand);
         fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
     }
 
@@ -128,6 +128,6 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
 
     int program_length = LOCCTR - START;
     printf("Success!");
-    
+
     return program_length;
 }

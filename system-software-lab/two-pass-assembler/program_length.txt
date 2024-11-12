@@ -1,1 +1,1 @@
-The length of the assembly program is: 4152
+4152
