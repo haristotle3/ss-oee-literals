@@ -12,12 +12,11 @@ int main()
     FILE *input_file = fopen("intermediate.txt", "r");
     FILE *operation_code_table = fopen("OPTAB.txt", "r");
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
-    FILE *length = fopen("program_length", "r");
+    FILE *length = fopen("program_length.txt", "r");
 
     int code_length;
     fscanf(length, "%d", &code_length);
-    printf("%d\n", code_length);
-    
+
     // output files
     FILE *object_program = fopen("object_program.txt", "w");
 
@@ -34,9 +33,6 @@ int passTwo(FILE *input_file, FILE *operation_code_table, FILE *symbol_table, FI
     char operand[MAX_TOKEN_LENGTH];
 
     fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
-
-    printf("%d\n", code_length);
-    printf("%x\n", code_length);
 
     if (strcmp(opcode, "START") == 0)
     {
