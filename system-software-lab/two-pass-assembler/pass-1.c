@@ -28,7 +28,7 @@ int main()
     fclose(intermediate_file);
     fclose(symbol_table);
 
-    fprintf(length, "%d", program_length);
+    fprintf(length, "%x", program_length);
     return 0;
 }
 
@@ -69,11 +69,11 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
             FILE *search_symtab = fopen("SYMTAB.txt", "r");
             char search_label[MAX_TOKEN_LENGTH];
 
-            while (fscanf(search_symtab, "%s\t%s", search_label) > 0)
+            while (fscanf(search_symtab, "%s\t%*s\n", search_label) > 0)
             {
                 if (strcmp(search_label, label) == 0)
                 {
-                    printf("ERROR: %s redefined at %d\n", label, LOCCTR);
+                    printf("ERROR: %s redefined at %x\n", label, LOCCTR);
                     return -1;
                 }
             }

@@ -36,10 +36,10 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
 
     FILE *temp_obj = fopen("temp.txt", "w");
     FILE *PC_file = fopen("intermediate.txt", "r");
-
     int program_counter;
     fscanf(PC_file, "%*s\t%*s\t%*s");
     fscanf(PC_file, "%x\t%*s\t%*s\t%*s", &program_counter);
+    int START = program_counter;
 
     char location[MAX_TOKEN_LENGTH];
     char label[MAX_TOKEN_LENGTH];
@@ -80,59 +80,82 @@ int passTwo(FILE *input_file, FILE *object_program, int code_length)
             char searched_symbol[MAX_TOKEN_LENGTH];
             int symbol_value;
 
-            if (strcmp(operand, "****") != 0)
-            {
-                FILE *symbol_table = fopen("SYMTAB.txt", "r");
+            FILE *symbol_table = fopen("SYMTAB.txt", "r");
 
-                int symbol_found = 0;
-                while (fscanf(symbol_table, "%s\t%x", searched_symbol, &symbol_value) > 0)
-                {
-                    if (strcmp(searched_symbol, operand) == 0)
-                    {
-                        symbol_found = 1;
-                        break;
-                    }
-                }
-                fclose(symbol_table);
+            while (fscanf(symbol_table, "%s\t%x", searched_symbol, &symbol_value) > 0)
+            {
+                if (strcmp(searched_symbol, operand) == 0)
+                    break;
             }
-            print_opcode = opcode_value;
-            // Now finding target address.
-            // Check for n and i flag
-            if (searched_symbol[0] == '#')
-                print_opcode += 1;
-            else if (searched_symbol[0] == '@')
-                print_opcode += 2;
-            else // if neither immediate nor indirect
+
+            if (strcmp(operand, "****") == 0)
+            {
+                fprintf(temp_obj, "%x\n", opcode_value);
+            }
+            else
+            {
+                print_opcode = opcode_value;
+                // Now finding target address.
+                // Check for n and i flag
+                // if neither immediate nor indirect
                 print_opcode += 3;
 
-            // Check PC relative
-            if ((symbol_value - program_counter) >= -2048 &&
-                (symbol_value - program_counter) <= 2047)
-            {
-                target_address = (symbol_value - program_counter);
-                print_xbpe += 1 << 1;
+                // Check PC relative
+                if ((symbol_value - program_counter) >= -2048 &&
+                    (symbol_value - program_counter) <= 2047)
+                {
+                    target_address = (symbol_value - program_counter);
+                    print_xbpe += 1 << 1;
+                }
+
+                if (searched_symbol[strlen(searched_symbol) - 1] == 'X')
+                    print_xbpe += 1 << 3;
+
+                // print everything in a temp file.
+                fprintf(temp_obj, "%02x%01x%03x\n", print_opcode, print_xbpe, target_address);
             }
-            else if ((symbol_value - program_counter) <= 4095)
-            {
-                // Base relative.
-            }
-
-            if (searched_symbol[strlen(searched_symbol) - 1] == 'X')
-                print_xbpe += 1 << 3;
-
-            if (searched_symbol[0] == '+')
-                print_xbpe += 1;
-
-            // print everything in a temp file.
-            fprintf(temp_obj, "%02x%1x%03x\n", print_opcode, print_xbpe, target_address);
         }
         else if (strcmp(opcode, "BYTE") == 0 || strcmp(opcode, "WORD") == 0)
         {
-            fprintf(temp_obj, "%06x\n", operand);
+            for (int i = 2; i < strlen(operand); i++)
+            {
+                fprintf(temp_obj, "%2x\n", operand[i]);
+            }
+            fprintf(temp_obj, "\n");
+        }
+        else if (strcmp(opcode, "TIX") == 0)
+        {
+            // Find symbol in symbol field.
+            char searched_symbol[MAX_TOKEN_LENGTH];
+            int symbol_value;
+
+            FILE *symbol_table = fopen("SYMTAB.txt", "r");
+
+            while (fscanf(symbol_table, "%2s\t%4x", searched_symbol, &symbol_value) > 0)
+            {
+                if (strcmp(searched_symbol, operand) == 0)
+                    break;
+            }
+            fprintf(temp_obj, "%2x%4x\n", opcode_value, symbol_value);
+        }
+        else if (strcmp(opcode, "RESB") == 0 || strcmp(opcode, "RESW") == 0)
+        {
+            fprintf(temp_obj, "****\n");
         }
     }
-
     fclose(temp_obj);
+
+    temp_obj = fopen("temp.txt", "r");
+    fprintf(object_program, "T%06x%02x", START, code_length);
+
+    char record[MAX_TOKEN_LENGTH];
+    while (!feof(temp_obj))
+    {
+        fscanf(temp_obj, "%s", record);
+        fprintf(object_program, "%s ", record);
+    }
+    fprintf(object_program, "\nE%06x", START);
+
     fclose(PC_file);
     printf("Success!");
     return 1;
