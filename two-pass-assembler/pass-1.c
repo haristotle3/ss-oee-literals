@@ -3,8 +3,9 @@
 #include <string.h> // for strcmp()
 
 #define MAX_TOKEN_LENGTH 25
+#define EMPTY "****"
 
-int passOne(FILE *, FILE *, FILE *);
+int passOne(FILE *, FILE *);
 int symbol_found(char *);
 void insert_symbol_to_SYMTAB(char *, int);
 int opcode_search();
@@ -13,23 +14,19 @@ int main()
 {
     // input files
     FILE *input_file = fopen("input.txt", "r");
-    FILE *operation_code_table = fopen("OPTAB.txt", "r");
 
     // output files
     FILE *intermediate_file = fopen("intermediate.txt", "w");
-    FILE *symbol_table = fopen("SYMTAB.txt", "w");
     FILE *length = fopen("program_length.txt", "w");
 
     // Input file is an assembly program.
     // The program is written in a fixed format with fields
     // LABEL, OPCODE and OPERAND
 
-    int program_length = passOne(input_file, operation_code_table, intermediate_file);
+    int program_length = passOne(input_file, intermediate_file);
 
     fclose(input_file);
-    fclose(operation_code_table);
     fclose(intermediate_file);
-    fclose(symbol_table);
 
     // Program length is in decimal.
     fprintf(length, "%d", program_length);
@@ -37,7 +34,7 @@ int main()
     return 0;
 }
 
-int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file)
+int passOne(FILE *input_file, FILE *intermediate_file)
 {
     char label[MAX_TOKEN_LENGTH];
     char opcode[MAX_TOKEN_LENGTH];
@@ -74,7 +71,7 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file)
         fprintf(intermediate_file, "%x\t%s\t%s\t%s\n", LOCCTR, label, opcode, operand);
 
         // If there is a symbol in the LABEL field
-        if (strcmp(label, "****") != 0)
+        if (strcmp(label, EMPTY) != 0)
         {
             if (!symbol_found(label))
                 insert_symbol_to_SYMTAB(label, LOCCTR);
