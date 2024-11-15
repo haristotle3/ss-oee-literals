@@ -74,7 +74,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             else
             {
                 printf("ERROR: %s redefined at %x\n", label, LOCCTR);
-                return -1;
+                return ERROR_VALUE;
             }
         }
 
@@ -103,7 +103,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         else
         {
             printf("ERROR: Invalid OPCODE (%s) at %x.\n", opcode, LOCCTR);
-            return -1;
+            return ERROR_VALUE;
         }
 
         // Read next line

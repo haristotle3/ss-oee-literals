@@ -21,7 +21,7 @@ int symbol_search(char label[])
             return 1;
         if (strcmp(label, cmp_indirect) == 0)
             return 1;
-    }  
+    }
 
     fclose(symbol_table);
     return 0;
@@ -37,5 +37,18 @@ int opcode_search(char opcode[])
             return 1;
 
     fclose(opcode_table);
+    return 0;
+}
+
+int symbol_value(char *req_symbol)
+{
+    FILE *symbol_table = fopen("SYMTAB.txt", "r");
+    char cmp_symbol[MAX_TOKEN_LENGTH];
+    int symbol_value;
+
+    while (fscanf(symbol_table, "%s\t%x", cmp_symbol, &symbol_value))
+        if (strcmp(cmp_symbol, req_symbol) == 0)
+            return symbol_value;
+
     return 0;
 }

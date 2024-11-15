@@ -52,6 +52,10 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     // Later we have to use fseek() and fputc() to replace 0 (text record length)
     // to appropriate value.
 
+    int assembled_opcode;
+    int xbpe_flags;
+    int assembled_address;
+
     while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, opcode, operand) > 0)
     {
         // No comments in intermediate file.
@@ -60,9 +64,17 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             if (strcmp(operand, EMPTY) != 0)
             {
                 if (symbol_search(operand))
+                    assembled_address = symbol_value(operand);
+                else
                 {
+                    printf("ERROR: %s doesn't exist in SYMTAB.\n", operand);
+                    return ERROR_VALUE;
                 }
             }
+            else 
+                assembled_address = 0;
+            
+            // assemble object code;
         }
         else if (strcmp(opcode, "BYTE") || strcmp(opcode, "WORD"))
         {
