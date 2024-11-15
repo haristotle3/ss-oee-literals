@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h> // for atoi()
 #include <string.h> // for strcmp()
-
-#define MAX_TOKEN_LENGTH 25
-#define EMPTY "****"
+#include "utils.h"
 
 int passOne(FILE *, FILE *);
-int symbol_found(char *);
 void insert_symbol_to_SYMTAB(char *, int);
-int opcode_search();
 
 int main()
 {
@@ -73,7 +69,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
         {
-            if (!symbol_found(label))
+            if (!symbol_search(label))
                 insert_symbol_to_SYMTAB(label, LOCCTR);
             else
             {
@@ -118,39 +114,4 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     printf("Success!");
 
     return program_length;
-}
-
-int symbol_found(char label[])
-{
-    FILE *symbol_table = fopen("SYMTAB.txt", "r");
-    char cmp_symbol[MAX_TOKEN_LENGTH];
-
-    while (fscanf(symbol_table, "%s\t%*x", cmp_symbol) > 0)
-        if (strcmp(label, cmp_symbol) == 0)
-            return 1;
-
-    fclose(symbol_table);
-    return 0;
-}
-
-void insert_symbol_to_SYMTAB(char *label, int location)
-{
-    FILE *symbol_table = fopen("SYMTAB.txt", "a");
-    fprintf(symbol_table, "%s\t%x\n", label, location);
-
-    fclose(symbol_table);
-    return;
-}
-
-int opcode_search(char opcode[])
-{
-    FILE *opcode_table = fopen("OPTAB.txt", "r");
-    char cmp_opcode[MAX_TOKEN_LENGTH];
-
-    while (fscanf(opcode_table, "%s\t%*x", cmp_opcode) > 0)
-        if (strcmp(opcode, cmp_opcode) == 0)
-            return 1;
-
-    fclose(opcode_table);
-    return 0;
 }
