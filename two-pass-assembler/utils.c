@@ -44,11 +44,22 @@ int symbol_value(char *req_symbol)
 {
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
+    char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
+    char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
     int symbol_value;
 
-    while (fscanf(symbol_table, "%s\t%x", cmp_symbol, &symbol_value))
-        if (strcmp(cmp_symbol, req_symbol) == 0)
+    while (fscanf(symbol_table, "%s\t%x", cmp_symbol, &symbol_value) > 0)
+    {
+        strcat(cmp_immediate, req_symbol);
+        strcat(cmp_indirect, req_symbol);
+
+        if (strcmp(req_symbol, cmp_symbol) == 0)
             return symbol_value;
+        if (strcmp(req_symbol, cmp_immediate) == 0)
+            return symbol_value;
+        if (strcmp(req_symbol, cmp_indirect) == 0)
+            return symbol_value;
+    }
 
     return 0;
 }

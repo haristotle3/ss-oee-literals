@@ -3,6 +3,10 @@
 #include <string.h>
 #include "utils.h"
 
+int assemble_instruction(opcode, operand, assembled_address);
+void get_literal_value(operand_without_extraneous, operand);
+unsigned int get_string_literal_hex(operand);
+
 int main()
 {
     // input files
@@ -52,15 +56,15 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     // Later we have to use fseek() and fputc() to replace 0 (text record length)
     // to appropriate value.
 
-    int assembled_opcode;
-    int xbpe_flags;
-    int assembled_address;
+    unsigned long int assembled_object_code = 0;
+    int text_record_length = 1 + 6 + 2;
 
     while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, opcode, operand) > 0)
     {
         // No comments in intermediate file.
         if (opcode_search(opcode))
         {
+            int assembled_address;
             if (strcmp(operand, EMPTY) != 0)
             {
                 if (symbol_search(operand))
@@ -71,13 +75,41 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                     return ERROR_VALUE;
                 }
             }
-            else 
+            else
                 assembled_address = 0;
-            
+
             // assemble object code;
+            assembled_object_code = assemble_instruction(opcode, operand, assembled_address);
         }
-        else if (strcmp(opcode, "BYTE") || strcmp(opcode, "WORD"))
+        else if (strcmp(opcode, "BYTE") == 0)
         {
+            char operand_without_extraneous[MAX_TOKEN_LENGTH];
+            get_literal_value(operand_without_extraneous, operand);
+
+            if (operand[0] == 'X')
+                assembled_object_code = strtol(operand_without_extraneous, NULL, 16);
+            else if (operand[0] == 'C')
+                assembled_object_code = get_string_literal_hex(operand);
+            else
+            {
+                printf("ERROR: Unknown literal %s\n", operand);
+                return ERROR_VALUE;
+            }
+        }
+        else if (strcmp(opcode, "WORD") == 0)
+        {
+            char operand_without_extraneous[MAX_TOKEN_LENGTH];
+            get_literal_value(operand_without_extraneous, operand);
+
+            assembled_object_code = strtol(operand_without_extraneous, NULL, 16);
+        }
+
+        int obj_code_length = get_object_code_length(assembled_object_code);
+
+        if (text_record_length + obj_code_length > 69)
+        {
+            // Start new text_record.
+            fprintf(temp_text_record, "\n%c%06x%02x", 'T', start_address, text_record_length);
         }
     }
 }
