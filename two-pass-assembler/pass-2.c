@@ -41,6 +41,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
     if (strcmp(opcode, "START") == 0)
         fprintf(assembly_listing, "%s\t%s\t%x\n", program_name, opcode, start_address);
+    else
+    {
+        printf("ERROR: Assembler expects START opcode in line 1.\n");
+        return ERROR_VALUE;
+    }
 
     // Program length in decimal.
     FILE *program_length = fopen("program_length.txt", "r");
@@ -48,7 +53,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fclose(program_length);
 
     // Write header record to object program.
-    fprintf(object_program, "H%6s%06x%06x", program_name, start_address, length);
+    fprintf(object_program, "H%6s%06x%06x\n", program_name, start_address, length);
 
     int text_record_length = 0;
     FILE *temp_text_record = fopen("Temp_text_record.txt", "w");
@@ -58,6 +63,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
     unsigned long int assembled_object_code = 0;
     int text_record_length = 1 + 6 + 2;
+    int text_record_start_address = start_address;
 
     while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, opcode, operand) > 0)
     {
@@ -105,11 +111,20 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
 
         int obj_code_length = get_object_code_length(assembled_object_code);
-
         if (text_record_length + obj_code_length > 69)
         {
+            update_text_record_length(temp_text_record, text_record_length);
+
             // Start new text_record.
-            fprintf(temp_text_record, "\n%c%06x%02x", 'T', start_address, text_record_length);
+            text_record_length = 0;
+            fprintf(temp_text_record, "\n%c%06x%02x", 'T', text_record_start_address, text_record_length);
+            text_record_start_address = location;
         }
+
+        fprintf(temp_text_record, "%x", assembled_object_code);
+        fprintf(assembly_listing, "%s\t%s\t%x\t%x\n", label, opcode, operand, assembled_object_code);
     }
+
+    fprintf(temp_text_record, "E%x", start_address);
+    return 1;
 }

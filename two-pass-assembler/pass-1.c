@@ -54,6 +54,11 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         // read next input line
         fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
     }
+    else
+    {
+        printf("ERROR: Assembler expects START opcode in line 1.\n");
+        return ERROR_VALUE;
+    }
 
     while (strcmp(opcode, "END") != 0)
     {
