@@ -4,7 +4,10 @@
 
 #define MAX_TOKEN_LENGTH 25
 
-int passOne(FILE *, FILE *, FILE *, FILE *, FILE *);
+int passOne(FILE *, FILE *, FILE *);
+int symbol_found(char *);
+void insert_symbol_to_SYMTAB(char *, int);
+int opcode_search();
 
 int main()
 {
@@ -21,7 +24,7 @@ int main()
     // The program is written in a fixed format with fields
     // LABEL, OPCODE and OPERAND
 
-    int program_length = passOne(input_file, operation_code_table, intermediate_file, symbol_table, length);
+    int program_length = passOne(input_file, operation_code_table, intermediate_file);
 
     fclose(input_file);
     fclose(operation_code_table);
@@ -29,10 +32,11 @@ int main()
     fclose(symbol_table);
 
     fprintf(length, "%x", program_length);
+    fclose(length);
     return 0;
 }
 
-int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE *symbol_table, FILE *length)
+int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file)
 {
     char label[MAX_TOKEN_LENGTH];
     char opcode[MAX_TOKEN_LENGTH];
@@ -40,6 +44,7 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
 
     unsigned int START = 0;
     unsigned int LOCCTR = 0;
+
     // read first line
     fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
 
@@ -50,11 +55,14 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
 
         // First line doesn't require a location.
         fprintf(intermediate_file, "%s\t%s\t%s\n", label, opcode, operand);
+
+        // read next input line
         fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
     }
 
     while (strcmp(opcode, "END") != 0)
     {
+        // if comment line, then go to next line
         if (strcmp(label, ".") == 0)
         {
             fscanf(input_file, "%s\t%s\t%s\n", label, opcode, operand);
@@ -63,46 +71,26 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
 
         fprintf(intermediate_file, "%x\t%s\t%s\t%s\n", LOCCTR, label, opcode, operand);
 
+        // If there is a symbol in the LABEL field
         if (strcmp(label, "****") != 0)
         {
-            // searching SYMTAB for label.
-            FILE *search_symtab = fopen("SYMTAB.txt", "r");
-            char search_label[MAX_TOKEN_LENGTH];
-
-            while (fscanf(search_symtab, "%s\t%*s\n", search_label) > 0)
+            if (!symbol_found(label))
+                insert_symbol_to_SYMTAB(label, LOCCTR);
+            else
             {
-                if (strcmp(search_label, label) == 0)
-                {
-                    printf("ERROR: %s redefined at %x\n", label, LOCCTR);
-                    return -1;
-                }
+                printf("ERROR: %s redefined at %x\n", label, LOCCTR);
+                return -1;
             }
-            // symbol not found.
-            fprintf(symbol_table, "%s\t%x\n", label, LOCCTR);
-            fclose(search_symtab);
         }
 
         // search OPTAB for opcode.
-        FILE *search_optab = fopen("OPTAB.txt", "r");
-        char search_opcode[MAX_TOKEN_LENGTH];
-        int opcode_found = 0;
-
-        while (fscanf(search_optab, "%s\t%s", search_opcode) > 0)
-        {
-            if (strcmp(search_opcode, opcode) == 0)
-            {
-                opcode_found = 1;
-                break;
-            }
-        }
-
-        fclose(search_optab);
+        int opcode_found = opcode_search();
 
         if (opcode_found && opcode[0] != '+')
             LOCCTR += 3;
         else if (opcode_found && opcode[0] == '+')
             LOCCTR += 4;
-        else if (opcode[strlen(opcode) - 1] == 'R')
+        else if (opcode_found && opcode[strlen(opcode) - 1] == 'R')
             LOCCTR += 2;
         else if (strcmp(opcode, "WORD") == 0)
             LOCCTR += 3;
@@ -123,6 +111,7 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file, FILE 
             return -1;
         }
 
+        // Read next line
         fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
     }
 
