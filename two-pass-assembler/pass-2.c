@@ -121,10 +121,22 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             text_record_start_address = location;
         }
 
+        // Write the assembled object code.
         fprintf(temp_text_record, "%x", assembled_object_code);
         fprintf(assembly_listing, "%s\t%s\t%x\t%x\n", label, opcode, operand, assembled_object_code);
     }
 
-    fprintf(temp_text_record, "E%x", start_address);
+    fclose(temp_text_record);
+
+    // Write to object program
+    temp_text_record = fopen("Temp_text_record.txt", "r");
+    
+    for(char ch = fgetc(temp_text_record); ch != EOF; ch = fgetc(temp_text_record))
+        fputc(ch, object_program);
+        
+    fclose(temp_text_record);
+
+    // Write the end record
+    fprintf(object_program, "E%x\n", start_address);
     return 1;
 }
