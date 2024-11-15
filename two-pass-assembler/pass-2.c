@@ -3,9 +3,23 @@
 #include <string.h>
 #include "utils.h"
 
-int assemble_instruction(opcode, operand, assembled_address);
+unsigned int assemble_instruction(opcode, operand, symbol_address);
+// hardest. Need to use some creativity.
 void get_literal_value(operand_without_extraneous, operand);
+// strip the apostropes and the first character 'C' or 'X' and return the remaining string.
 unsigned int get_string_literal_hex(operand);
+// convert string to ascii numbers as an unsigned int and return
+int get_object_code_length(assembled_object_code);
+// get the length of the code, just take log to the base 16 and ceil func it.
+void update_text_record_length(temp_text_record, text_record_length);
+// self explanatory
+
+void increment_pc();
+void init_pc_file();
+
+FILE *PROGRAM_COUNTER_FILE;
+int PROGRAM_COUNTER = 0;
+int BASE = 0;
 
 int main()
 {
@@ -18,6 +32,11 @@ int main()
     // Input file is an assembly program.
     // The program is written in a fixed format with fields
     // LABEL, OPCODE and OPERAND
+
+    if (passTwo(input_file, object_program, assembly_listing) == ERROR_VALUE)
+        printf("Assembly failed.\n");
+    else
+        printf("Success!\n");
 
     fclose(input_file);
     fclose(object_program);
@@ -64,17 +83,19 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     unsigned long int assembled_object_code = 0;
     int text_record_length = 1 + 6 + 2;
     int text_record_start_address = start_address;
+    init_pc_file();
 
     while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, opcode, operand) > 0)
     {
+        increment_pc();
         // No comments in intermediate file.
         if (opcode_search(opcode))
         {
-            int assembled_address;
+            int symbol_address;
             if (strcmp(operand, EMPTY) != 0)
             {
                 if (symbol_search(operand))
-                    assembled_address = symbol_value(operand);
+                    symbol_address = symbol_value(operand);
                 else
                 {
                     printf("ERROR: %s doesn't exist in SYMTAB.\n", operand);
@@ -82,10 +103,10 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                 }
             }
             else
-                assembled_address = 0;
+                symbol_address = 0;
 
-            // assemble object code;
-            assembled_object_code = assemble_instruction(opcode, operand, assembled_address);
+            // assemble object code
+            assembled_object_code = assemble_instruction(opcode, operand, symbol_address);
         }
         else if (strcmp(opcode, "BYTE") == 0)
         {
@@ -103,12 +124,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             }
         }
         else if (strcmp(opcode, "WORD") == 0)
-        {
-            char operand_without_extraneous[MAX_TOKEN_LENGTH];
-            get_literal_value(operand_without_extraneous, operand);
-
-            assembled_object_code = strtol(operand_without_extraneous, NULL, 16);
-        }
+            assembled_object_code = strtol(operand, NULL, 16);
+        
 
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 69)
@@ -130,13 +147,18 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
     // Write to object program
     temp_text_record = fopen("Temp_text_record.txt", "r");
-    
-    for(char ch = fgetc(temp_text_record); ch != EOF; ch = fgetc(temp_text_record))
+
+    for (char ch = fgetc(temp_text_record); ch != EOF; ch = fgetc(temp_text_record))
         fputc(ch, object_program);
-        
+
     fclose(temp_text_record);
 
     // Write the end record
     fprintf(object_program, "E%x\n", start_address);
     return 1;
+}
+
+unsigned int assemble_instruction(char opcode[], char operand[], int symbol_address)
+{
+    // Returns an assembled object code from given input parameters.
 }
