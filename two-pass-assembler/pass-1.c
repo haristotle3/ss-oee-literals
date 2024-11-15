@@ -31,6 +31,7 @@ int main()
     fclose(intermediate_file);
     fclose(symbol_table);
 
+    // Program length is in decimal.
     fprintf(length, "%d", program_length);
     fclose(length);
     return 0;
