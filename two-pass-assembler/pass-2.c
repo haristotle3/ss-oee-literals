@@ -18,4 +18,7 @@ int main()
     // LABEL, OPCODE and OPERAND
 }
 
-int passTwo()
+int passTwo(FILE* input_file, FILE* object_program)
+{
+    
+}
