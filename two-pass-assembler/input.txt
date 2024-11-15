@@ -9,7 +9,6 @@ LOOP    ADD     TABLE,X
 ****    RSUB    ****
 TABLE   RESW    100
 COUNT   RESW    1
-COUNT   RESW    1
 ZERO    WORD    0
 TOTAL   RESW    1
 STR1    BYTE    C'EOF'

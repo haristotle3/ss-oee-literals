@@ -31,7 +31,7 @@ int main()
     fclose(intermediate_file);
     fclose(symbol_table);
 
-    fprintf(length, "%x", program_length);
+    fprintf(length, "%d", program_length);
     fclose(length);
     return 0;
 }
@@ -44,17 +44,18 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file)
 
     unsigned int START = 0;
     unsigned int LOCCTR = 0;
+    unsigned int start_address;
 
     // read first line
-    fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
+    fscanf(input_file, "%s\t%s\t%x", label, opcode, &start_address);
 
     if (strcmp(opcode, "START") == 0)
     {
-        START = atoi(operand);
+        START = start_address;
         LOCCTR = START;
 
         // First line doesn't require a location.
-        fprintf(intermediate_file, "%s\t%s\t%s\n", label, opcode, operand);
+        fprintf(intermediate_file, "%s\t%s\t%x\n", label, opcode, start_address);
 
         // read next input line
         fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
@@ -84,7 +85,7 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file)
         }
 
         // search OPTAB for opcode.
-        int opcode_found = opcode_search();
+        int opcode_found = opcode_search(opcode);
 
         if (opcode_found && opcode[0] != '+')
             LOCCTR += 3;
@@ -119,4 +120,39 @@ int passOne(FILE *input_file, FILE *opcode_table, FILE *intermediate_file)
     printf("Success!");
 
     return program_length;
+}
+
+int symbol_found(char label[])
+{
+    FILE *symbol_table = fopen("SYMTAB.txt", "r");
+    char cmp_symbol[MAX_TOKEN_LENGTH];
+
+    while (fscanf(symbol_table, "%s\t%*x", cmp_symbol) > 0)
+        if (strcmp(label, cmp_symbol) == 0)
+            return 1;
+
+    fclose(symbol_table);
+    return 0;
+}
+
+void insert_symbol_to_SYMTAB(char *label, int location)
+{
+    FILE *symbol_table = fopen("SYMTAB.txt", "a");
+    fprintf(symbol_table, "%s\t%x\n", label, location);
+
+    fclose(symbol_table);
+    return;
+}
+
+int opcode_search(char opcode[])
+{
+    FILE *opcode_table = fopen("OPTAB.txt", "r");
+    char cmp_opcode[MAX_TOKEN_LENGTH];
+
+    while (fscanf(opcode_table, "%s\t%*x", cmp_opcode) > 0)
+        if (strcmp(opcode, cmp_opcode) == 0)
+            return 1;
+
+    fclose(opcode_table);
+    return 0;
 }
