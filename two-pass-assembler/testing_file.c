@@ -8,7 +8,7 @@ FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
 int BASE = 0;
 
-void init_pc_file()
+void init_pc_file() // Tested
 {
     PROGRAM_COUNTER_FILE = fopen("intermediate.txt", "r");
 
@@ -21,7 +21,7 @@ void init_pc_file()
     return;
 }
 
-int increment_pc()
+int increment_pc() // Tested
 {
     if (!feof(PROGRAM_COUNTER_FILE))
     {
