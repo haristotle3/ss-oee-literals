@@ -7,11 +7,11 @@
 unsigned int assemble_instruction(opcode, operand, symbol_address);
 // hardest. Need to use some creativity.
 void get_literal_value(char operand_without_extraneous[], char operand[]);
-unsigned long int get_string_literal_hex(char operand_without_extraneous[]);
+unsigned long long int get_string_literal_hex(char operand_without_extraneous[]);
 int get_object_code_length(unsigned long int assembled_object_code);
 void update_text_record_length(FILE *temp_text_record, int text_record_length);
 
-void increment_pc();
+int increment_pc();
 void init_pc_file();
 
 FILE *PROGRAM_COUNTER_FILE;
@@ -77,7 +77,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     // Later we have to use fseek() and fputc() to replace 0 (text record length)
     // to appropriate value.
 
-    unsigned long int assembled_object_code = 0;
+    unsigned long long int assembled_object_code = 0;
     int text_record_length = 0;
     int text_record_start_address = start_address;
     init_pc_file();
@@ -138,8 +138,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
-        fprintf(temp_text_record, "%0*x", obj_code_length, assembled_object_code);
-        fprintf(assembly_listing, "%s\t%s\t%x\t%x\n", label, opcode, operand, assembled_object_code);
+        fprintf(temp_text_record, "%0*llx", obj_code_length, assembled_object_code);
+        fprintf(assembly_listing, "%s\t%s\t%s\t%llx\n", label, opcode, operand, assembled_object_code);
     }
 
     fclose(temp_text_record);
@@ -176,20 +176,27 @@ void init_pc_file()
     return;
 }
 
-void increment_pc()
+int increment_pc()
 {
     if (!feof(PROGRAM_COUNTER_FILE))
+    {
         fscanf(PROGRAM_COUNTER_FILE, "%x\t%*s\t%*s\t%*s\n", &PROGRAM_COUNTER);
-
-    return;
+        return 1;
+    }
+    else
+        return 0;
 }
 
 int get_object_code_length(unsigned long int assembled_object_code)
 {
-    // get the length of the code,
-    // take log to the base 16 and apply ceiling function to it.
-    // then divide the result by 2, since one hexadecimal digit is one nibble,
-    // 2 hexadecimal digits make 1 byte.
+    // get the length of the object code,
+    // just take log to the base 16, which gives the number of hexadecimal digits.
+    // then divide by 2, since each hexadecimal digit represents a nibble,
+    // therefore 2 nibbles make a byte;
+    // then take the ceiling function to get length.
+    // There will always be an even number of hexadecimal digits.
+    // Therefore, when divided by 2, results will be have odd and even values,
+    // which is exactly what we expect
 
     // By change of base formula,
     // log16(x) = log2(x)/log2(16) = log2(x) / 4
@@ -197,10 +204,10 @@ int get_object_code_length(unsigned long int assembled_object_code)
     return ceil(log2(assembled_object_code) / 4 / 2);
 }
 
-unsigned long int get_string_literal_hex(char operand_without_extraneous[])
+unsigned long long int get_string_literal_hex(char operand_without_extraneous[])
 {
     // convert string to ascii value string (as an unsigned long int) and return.
-    unsigned long int obj_code = 0;
+    unsigned long long int obj_code = 0;
 
     for (int i = 0; i < strlen(operand_without_extraneous); i++)
     {
@@ -223,8 +230,23 @@ void get_literal_value(char operand_without_extraneous[], char operand[])
 
 void update_text_record_length(FILE *temp_text_record, int text_record_length)
 {
-    fseek(temp_text_record, 1 + 6, SEEK_SET);
+    // Text record length is in bytes, two hex digits make a byte.
+    // But each character stored in a file is takes up a byte.
+
+    // Therefore we have to multiply text_record_length by 2 to get to
+    // the column where length is stored.
+
+    // Text_record length excludes '\n' so we have to add +1 before multiplying by 2.
+    // Finally subtract two to get to text-record-length column.
+
+    // File points to the place after the '\n' character and therefore
+    // the above offset arithmetic is correct.
+
+    fseek(temp_text_record, 2 * -(text_record_length + 1) - 2, SEEK_CUR);
     fprintf(temp_text_record, "%02x", text_record_length);
+
+    // Go back to the end of the file.
+    fseek(temp_text_record, 0, SEEK_END);
 
     return;
 }
