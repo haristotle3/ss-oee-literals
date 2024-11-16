@@ -34,13 +34,15 @@ int increment_pc() // Tested
 
 int get_object_code_length(unsigned long int assembled_object_code) // Tested
 {
-    // get the length of the code,
+    // get the length of the object code,
     // just take log to the base 16, which gives the number of hexadecimal digits.
     // then divide by 2, since each hexadecimal digit represents a nibble,
     // therefore 2 nibbles make a byte;
     // then take the ceiling function to get length.
-    // This is guranteed to achieve even length of object code, which is correct.
-
+    // There will always be an even number of hexadecimal digits. 
+    // Therefore, when divided by 2, results will be have odd and even values, 
+    // which is exactly what we expect
+    
     // By change of base formula,
     // log16(x) = log2(x)/log2(16) = log2(x) / 4
 
