@@ -75,21 +75,36 @@ void get_literal_value(char operand_without_extraneous[], char operand[]) // Tes
 
 void update_text_record_length(FILE *temp_text_record, int text_record_length)
 {
-    fseek(temp_text_record, 1 + 6, SEEK_SET);
+    // Text record length is in bytes, two hex digits make a byte.
+    // But each character stored in a file is takes up a byte.
+    // Therefore we have to multiply text_record_length by 2 to get to
+    // the column where length is stored.
+
+    fseek(temp_text_record, 2 * (-text_record_length) - 2, SEEK_CUR);
+    printf("%c", fgetc(temp_text_record));
     fprintf(temp_text_record, "%02x", text_record_length);
+    fseek(temp_text_record, 2 * (+text_record_length) + 2, SEEK_CUR);
+    printf("%c", fgetc(temp_text_record));
 
     return;
 }
 
 int main()
 {
-    char buf[MAX_TOKEN_LENGTH];
-    get_literal_value(buf, "X'F1'");
-    printf("%s\n", buf);
-    get_literal_value(buf, "X'05'");
-    printf("%s\n", buf);
-    get_literal_value(buf, "C'EOF'");
-    printf("%s\n", buf);
+    FILE *tr = fopen("example_trecord.txt", "r");
+    fseek(tr, 68, SEEK_SET);
+    printf("%c\n", fgetc(tr));
+
+    fseek(tr, 2 * (-30) - 2, SEEK_CUR);
+    printf("%c\n", fgetc(tr));
+
+    fseek(tr, +1, SEEK_CUR);
+    printf("%c\n", fgetc(tr));
+
+    fseek(tr, +1, SEEK_CUR);
+    printf("%c\n", fgetc(tr));
+    // update_text_record_length(tr, 30);
+    // update_text_record_length(tr, 0x15);
 
     return 0;
 }

@@ -78,7 +78,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     // to appropriate value.
 
     unsigned long int assembled_object_code = 0;
-    int text_record_length = 1 + 6 + 2;
+    int text_record_length = 0;
     int text_record_start_address = start_address;
     init_pc_file();
 
