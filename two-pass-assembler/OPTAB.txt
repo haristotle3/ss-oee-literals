@@ -1,7 +1,13 @@
-LDX 04
-LDA 00
-ADD 18
-TIX 2C
-JLT 38
-STA 0C
-RSUB    4C
+ADD     3   18
+ADDF    3   58
+ADDR    2   90
+AND     3   40
+CLEAR   2   B4
+COMP    3   28
+COMPF   3   88
+COMPR   2   A0
+DIV     3   24
+DIVF    3   64
+DIVR    2   9C
+FIX     1   C4
+FLOAT   1   C0

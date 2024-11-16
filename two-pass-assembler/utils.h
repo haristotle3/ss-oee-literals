@@ -10,3 +10,5 @@
 int symbol_search(char *); 
 int opcode_search(char *);
 int symbol_value(char *);
+int opcode_instruction_format(char *);
+int opcode_value(char *);

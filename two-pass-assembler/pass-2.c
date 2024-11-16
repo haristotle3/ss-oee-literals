@@ -4,7 +4,7 @@
 #include <math.h>
 #include "utils.h"
 
-unsigned int assemble_instruction(opcode, operand, symbol_address);
+unsigned long long int assemble_instruction(opcode, operand, symbol_address);
 // hardest. Need to use some creativity.
 void get_literal_value(char operand_without_extraneous[], char operand[]);
 unsigned long long int get_string_literal_hex(char operand_without_extraneous[]);
@@ -121,7 +121,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             }
         }
         else if (strcmp(opcode, "WORD") == 0)
-            assembled_object_code = strtol(operand, NULL, 16);
+            assembled_object_code = (unsigned long long int)strtol(operand, NULL, 16);
         else if (strcmp(opcode, "BASE") == 0)
         {
             BASE = symbol_value(operand);
@@ -165,9 +165,14 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     return 1;
 }
 
-unsigned int assemble_instruction(char opcode[], char operand[], int symbol_address)
+unsigned long long int assemble_instruction(char opcode[], char operand[], int symbol_address)
 {
     // Returns an assembled object code from given input parameters.
+    unsigned long long int assembled_object_code;
+    int instruction_format = opcode_instruction_format(opcode);
+
+    if(instruction_format == 1)
+        assembled_object_code = opcode_value(opcode);
 }
 
 void init_pc_file()
