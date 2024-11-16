@@ -18,7 +18,7 @@ void increment_pc();
 void init_pc_file();
 
 FILE *PROGRAM_COUNTER_FILE;
-int PROGRAM_COUNTER = 0;
+int PROGRAM_COUNTER;
 int BASE = 0;
 
 int main()
@@ -125,7 +125,6 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
         else if (strcmp(opcode, "WORD") == 0)
             assembled_object_code = strtol(operand, NULL, 16);
-        
 
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 69)
@@ -155,10 +154,32 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
     // Write the end record
     fprintf(object_program, "E%x\n", start_address);
+    fclose(PROGRAM_COUNTER_FILE);
     return 1;
 }
 
 unsigned int assemble_instruction(char opcode[], char operand[], int symbol_address)
 {
     // Returns an assembled object code from given input parameters.
+}
+
+void init_pc_file()
+{
+    PROGRAM_COUNTER_FILE = fopen("intermediate.txt", "r");
+
+    // Read first line and ignore.
+    fscanf(PROGRAM_COUNTER_FILE, "%*s\t%*s\t%*s");
+
+    // Initialize program counter variable.
+    fscanf(PROGRAM_COUNTER_FILE, "%x\t%*s\t%*s\t%*s", &PROGRAM_COUNTER);
+
+    return;
+}
+
+void increment_pc()
+{
+    if (!feof(PROGRAM_COUNTER_FILE))
+        fscanf(PROGRAM_COUNTER_FILE, "%x\t%*s\t%*s\t%*s", &PROGRAM_COUNTER);
+
+    return;
 }
