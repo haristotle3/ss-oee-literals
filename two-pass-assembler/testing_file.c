@@ -63,7 +63,7 @@ unsigned long long int get_string_literal_hex(char operand_without_extraneous[])
     return obj_code;
 }
 
-void get_literal_value(char operand_without_extraneous[], char operand[])
+void get_literal_value(char operand_without_extraneous[], char operand[]) // Tested
 {
     // strip the apostropes and the first character
     // 'C' or 'X' and return the remaining string.
@@ -83,6 +83,13 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
 
 int main()
 {
+    char buf[MAX_TOKEN_LENGTH];
+    get_literal_value(buf, "X'F1'");
+    printf("%s\n", buf);
+    get_literal_value(buf, "X'05'");
+    printf("%s\n", buf);
+    get_literal_value(buf, "C'EOF'");
+    printf("%s\n", buf);
 
     return 0;
 }
