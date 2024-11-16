@@ -133,11 +133,12 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             fprintf(temp_text_record, "\n%c%06x%02x", 'T', text_record_start_address, text_record_length);
             text_record_start_address = location;
         }
-        else 
+        else
             text_record_length += obj_code_length;
 
         // Write the assembled object code.
-        fprintf(temp_text_record, "%x", assembled_object_code);
+        // %0*x is variable padding length, length is obj_code_length.
+        fprintf(temp_text_record, "%0*x", obj_code_length, assembled_object_code);
         fprintf(assembly_listing, "%s\t%s\t%x\t%x\n", label, opcode, operand, assembled_object_code);
     }
 

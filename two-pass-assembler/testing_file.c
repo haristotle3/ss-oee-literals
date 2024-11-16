@@ -32,15 +32,19 @@ int increment_pc() // Tested
         return 0;
 }
 
-int get_object_code_length(unsigned long int assembled_object_code)
+int get_object_code_length(unsigned long int assembled_object_code) // Tested
 {
     // get the length of the code,
-    // just take log to the base 16 and apply ceiling funcition to it.
+    // just take log to the base 16, which gives the number of hexadecimal digits.
+    // then divide by 2, since each hexadecimal digit represents a nibble,
+    // therefore 2 nibbles make a byte;
+    // then take the ceiling function to get length.
+    // This is guranteed to achieve even length of object code, which is correct.
 
     // By change of base formula,
     // log16(x) = log2(x)/log2(16) = log2(x) / 4
 
-    return ceil(log2(assembled_object_code) / 4);
+    return ceil(log2(assembled_object_code) / 4 / 2);
 }
 
 unsigned long int get_string_literal_hex(char operand_without_extraneous[])
@@ -77,10 +81,12 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
 
 int main()
 {
-    printf("Object Code %x, Length: %x\n", 0x4b101036, get_object_code_length(0x4b101036));
-    printf("Object Code %x, Length: %x\n", 0x0f2016, get_object_code_length(0x0f2016));
-    printf("Object Code %x, Length: %x\n", 0x3e2003, get_object_code_length(0x3e2003));
-    printf("Object Code %x, Length: %x\n, ", 0x454f46, get_object_code_length(0x454f46));
+    printf("Object Code %0*x, Length: %x\n", 2 * get_object_code_length(0x4b101036), 0x4b101036, get_object_code_length(0x4b101036));
+    printf("Object Code %0*x, Length: %x\n", 2 * get_object_code_length(0x0f2016), 0x0f2016, get_object_code_length(0x0f2016));
+    printf("Object Code %0*x, Length: %x\n", 2 * get_object_code_length(0x3e2003), 0x3e2003, get_object_code_length(0x3e2003));
+    printf("Object Code %0*x, Length: %x\n", 2 * get_object_code_length(0x454f46), 0x454f46, get_object_code_length(0x454f46));
+    printf("Object Code %0*x, Length: %x\n", 2 * get_object_code_length(0x0f200d), 0x0f200d, get_object_code_length(0x0f200d));
+    printf("Object Code %0*x, Length: %x\n", 2 * get_object_code_length(0x05), 0x05, get_object_code_length(0x05));
 
     return 0;
 }
