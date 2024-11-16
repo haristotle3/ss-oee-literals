@@ -236,13 +236,18 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
     // Therefore we have to multiply text_record_length by 2 to get to
     // the column where length is stored.
 
-    // Text_record length excludes '\n' so we have to add +1 before multiplying by 2.
-    // Finally subtract two to get to text-record-length column.
-
     // File points to the place after the '\n' character and therefore
-    // the above offset arithmetic is correct.
+    // Minus one gets to '\n', and minus 2 gets to the last character of the text record.
+    // Think of it as indexing starting from 2, instead of 0,
 
-    fseek(temp_text_record, 2 * -(text_record_length + 1) - 2, SEEK_CUR);
+    // Then we have to index to the Nth character if indexed from 0,
+    // But here index is from 2, so we have to index to (N+2) th character
+    
+    // Example, if the record length (in characters) 60, then we have to index to 62nd 
+    // Character from last (since 2 bytes is for text-record-length columns)
+
+    // Therefore we have to index to (60 - 2 - 2)th index.
+    fseek(temp_text_record, 2 * -(text_record_length) - 2 - 2, SEEK_CUR);
     fprintf(temp_text_record, "%02x", text_record_length);
 
     // Go back to the end of the file.
