@@ -77,11 +77,10 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
 
 int main()
 {
-    init_pc_file();
-    printf("%x\n", PROGRAM_COUNTER);
-
-    while (increment_pc())
-        printf("%x\n", PROGRAM_COUNTER);
+    printf("Object Code %x, Length: %x\n", 0x4b101036, get_object_code_length(0x4b101036));
+    printf("Object Code %x, Length: %x\n", 0x0f2016, get_object_code_length(0x0f2016));
+    printf("Object Code %x, Length: %x\n", 0x3e2003, get_object_code_length(0x3e2003));
+    printf("Object Code %x, Length: %x\n, ", 0x454f46, get_object_code_length(0x454f46));
 
     return 0;
 }

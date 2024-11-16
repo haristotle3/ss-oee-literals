@@ -133,6 +133,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             fprintf(temp_text_record, "\n%c%06x%02x", 'T', text_record_start_address, text_record_length);
             text_record_start_address = location;
         }
+        else 
+            text_record_length += obj_code_length;
 
         // Write the assembled object code.
         fprintf(temp_text_record, "%x", assembled_object_code);
@@ -184,12 +186,14 @@ void increment_pc()
 int get_object_code_length(unsigned long int assembled_object_code)
 {
     // get the length of the code,
-    // just take log to the base 16 and apply ceiling funcition to it.
+    // take log to the base 16 and apply ceiling function to it.
+    // then divide the result by 2, since one hexadecimal digit is one nibble,
+    // 2 hexadecimal digits make 1 byte.
 
     // By change of base formula,
     // log16(x) = log2(x)/log2(16) = log2(x) / 4
 
-    return ceil(log2(assembled_object_code) / 4);
+    return ceil(log2(assembled_object_code) / 4 / 2);
 }
 
 unsigned long int get_string_literal_hex(char operand_without_extraneous[])
