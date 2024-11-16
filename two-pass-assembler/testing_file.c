@@ -73,38 +73,31 @@ void get_literal_value(char operand_without_extraneous[], char operand[]) // Tes
     return;
 }
 
-void update_text_record_length(FILE *temp_text_record, int text_record_length)
+void update_text_record_length(FILE *temp_text_record, int text_record_length) // Tested
 {
     // Text record length is in bytes, two hex digits make a byte.
     // But each character stored in a file is takes up a byte.
+
     // Therefore we have to multiply text_record_length by 2 to get to
     // the column where length is stored.
 
-    fseek(temp_text_record, 2 * (-text_record_length) - 2, SEEK_CUR);
-    printf("%c", fgetc(temp_text_record));
+    // Text_record length excludes '\n' so we have to add +1 before multiplying by 2.
+    // Finally subtract two to get to text-record-length column.
+
+    // File points to the place after the '\n' character and therefore
+    // the above offset arithmetic is correct.
+
+    fseek(temp_text_record, 2 * -(text_record_length + 1) - 2, SEEK_CUR);
     fprintf(temp_text_record, "%02x", text_record_length);
-    fseek(temp_text_record, 2 * (+text_record_length) + 2, SEEK_CUR);
-    printf("%c", fgetc(temp_text_record));
+
+    // Go back to the end of the file.
+    fseek(temp_text_record, 0, SEEK_END);
 
     return;
 }
 
 int main()
 {
-    FILE *tr = fopen("example_trecord.txt", "r");
-    fseek(tr, 68, SEEK_SET);
-    printf("%c\n", fgetc(tr));
-
-    fseek(tr, 2 * (-30) - 2, SEEK_CUR);
-    printf("%c\n", fgetc(tr));
-
-    fseek(tr, +1, SEEK_CUR);
-    printf("%c\n", fgetc(tr));
-
-    fseek(tr, +1, SEEK_CUR);
-    printf("%c\n", fgetc(tr));
-    // update_text_record_length(tr, 30);
-    // update_text_record_length(tr, 0x15);
 
     return 0;
 }
