@@ -53,7 +53,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     char opcode[MAX_TOKEN_LENGTH];
     char operand[MAX_TOKEN_LENGTH];
 
-    fscanf(input_file, "%s\t%s\t%x", &program_name, opcode, &start_address);
+    fscanf(input_file, "%s\t%s\t%x", program_name, opcode, &start_address);
 
     if (strcmp(opcode, "START") == 0)
         fprintf(assembly_listing, "%s\t%s\t%x\n", program_name, opcode, start_address);
@@ -69,7 +69,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fclose(program_length);
 
     // Write header record to object program.
-    fprintf(object_program, "H%6s%06x%06x\n", program_name, start_address, length);
+    fprintf(object_program, "H%-6s%06x%06x\n", program_name, start_address, length);
 
     int text_record_length = 0;
     FILE *temp_text_record = fopen("Temp_text_record.txt", "w");
@@ -122,6 +122,13 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
         else if (strcmp(opcode, "WORD") == 0)
             assembled_object_code = strtol(operand, NULL, 16);
+        else if (strcmp(opcode, "BASE") == 0)
+        {
+            BASE = symbol_value(operand);
+            continue;
+        }
+        else if (strcmp(opcode, "RESW") == 0 || strcmp(opcode, "WORD") == 0)
+            continue;
 
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 69)
@@ -130,8 +137,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
             // Start new text_record.
             text_record_length = 0;
-            fprintf(temp_text_record, "\n%c%06x%02x", 'T', text_record_start_address, text_record_length);
             text_record_start_address = location;
+            fprintf(temp_text_record, "\n%c%06x%02x", 'T', text_record_start_address, text_record_length);
         }
         else
             text_record_length += obj_code_length;
@@ -139,7 +146,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
         fprintf(temp_text_record, "%0*llx", obj_code_length, assembled_object_code);
-        fprintf(assembly_listing, "%s\t%s\t%s\t%llx\n", label, opcode, operand, assembled_object_code);
+        fprintf(assembly_listing, "%x\t%s\t%s\t%s\t%llx\n", location, label, opcode, operand, assembled_object_code);
     }
 
     fclose(temp_text_record);
@@ -242,12 +249,12 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
 
     // Then we have to index to the Nth character if indexed from 0,
     // But here index is from 2, so we have to index to (N+2) th character
-    
-    // Example, if the record length (in characters) 60, then we have to index to 62nd 
+
+    // Example, if the record length (in characters) 60, then we have to index to 62nd
     // Character from last (since 2 bytes is for text-record-length columns)
 
-    // Therefore we have to index to (60 - 2 - 2)th index.
-    fseek(temp_text_record, 2 * -(text_record_length) - 2 - 2, SEEK_CUR);
+    // Therefore we have to index to -(60 + 2 + 2)th index.
+    fseek(temp_text_record, 2 * -(text_record_length)-2 - 2, SEEK_CUR);
     fprintf(temp_text_record, "%02x", text_record_length);
 
     // Go back to the end of the file.
