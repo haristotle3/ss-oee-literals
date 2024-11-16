@@ -5,6 +5,7 @@
 #define MAX_TOKEN_LENGTH 25
 #define EMPTY "****"
 #define ERROR_VALUE -1
+#define NUM_REGISTERS 7
 
 int symbol_search(char *); 
 int symbol_value(char *);

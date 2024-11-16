@@ -4,12 +4,12 @@
 #include <math.h>
 #include "utils.h"
 
-unsigned long long int assemble_instruction(opcode, operand, symbol_address);
+unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
-void get_literal_value(char operand_without_extraneous[], char operand[]);
-unsigned long long int get_string_literal_hex(char operand_without_extraneous[]);
-int get_object_code_length(unsigned long int assembled_object_code);
-void update_text_record_length(FILE *temp_text_record, int text_record_length);
+void get_literal_value(char *, char *);
+unsigned long long int get_string_literal_hex(char *);
+int get_object_code_length(unsigned long long int);
+void update_text_record_length(FILE *, int);
 
 int increment_pc();
 void init_pc_file();
@@ -17,6 +17,7 @@ void init_pc_file();
 FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
 int BASE = 0;
+int INDEX_REG = 0;
 
 int main()
 {
@@ -165,14 +166,60 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     return 1;
 }
 
-unsigned long long int assemble_instruction(char opcode[], char operand[], int symbol_address)
+unsigned long long int assemble_instruction(char mnemonic[], char operand[], int symbol_address)
 {
     // Returns an assembled object code from given input parameters.
     unsigned long long int assembled_object_code;
-    int instruction_format = opcode_instruction_format(opcode);
+    int instruction_format = opcode_instruction_format(mnemonic);
 
-    if(instruction_format == 1)
-        assembled_object_code = opcode_value(opcode);
+    // Register table:
+    // PC and SW are not needed, however SW can be used for error flags.
+    // For now its not needed.
+    char registers[NUM_REGISTERS] = {'A', 'X', 'L', 'B', 'S', 'T', 'F'};
+
+    if (instruction_format == 1)
+        assembled_object_code = opcode_value(mnemonic);
+    else if (instruction_format == 2)
+    {
+        int r1 = 0, r2 = 0;
+
+        assembled_object_code = opcode_value(mnemonic);
+
+        // Find r1 number
+        for (int reg_number = 0; reg_number < NUM_REGISTERS; reg_number++)
+            if (operand[0] == registers[reg_number])
+                r1 = reg_number;
+
+        // Find r2 number
+        for (int reg_number = 0; reg_number < NUM_REGISTERS; reg_number++)
+            if (operand[2] == registers[reg_number])
+                r2 = reg_number;
+
+        assembled_object_code <<= 4;
+        assembled_object_code += r1;
+
+        assembled_object_code <<= 4;
+        assembled_object_code += r2;
+    }
+    else if (instruction_format == 3)
+    {
+        assembled_object_code = opcode_value(mnemonic);
+        assembled_object_code <<= 2;
+        // Check if indirect
+        if (operand[0] == '@')
+            // Set n flag on;
+            assembled_object_code += 2;
+        else if (operand[0] == '#')
+            // Set i flag on;
+            assembled_object_code += 1;
+        else
+            // neither immediate nor indirect
+            assembled_object_code += 3;
+
+        assembled_object_code <<= 4;
+        // Dealing with x, b, p, e flags
+        // I think it would be better if we had an array of registers;
+    }
 }
 
 void init_pc_file()
@@ -199,7 +246,7 @@ int increment_pc()
         return 0;
 }
 
-int get_object_code_length(unsigned long int assembled_object_code)
+int get_object_code_length(unsigned long long int assembled_object_code)
 {
     // get the length of the object code,
     // just take log to the base 16, which gives the number of hexadecimal digits.
