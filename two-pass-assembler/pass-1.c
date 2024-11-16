@@ -33,7 +33,7 @@ int main()
 int passOne(FILE *input_file, FILE *intermediate_file)
 {
     char label[MAX_TOKEN_LENGTH];
-    char opcode[MAX_TOKEN_LENGTH];
+    char mnemonic[MAX_TOKEN_LENGTH];
     char operand[MAX_TOKEN_LENGTH];
 
     unsigned int START = 0;
@@ -41,18 +41,18 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     unsigned int start_address;
 
     // read first line
-    fscanf(input_file, "%s\t%s\t%x", label, opcode, &start_address);
+    fscanf(input_file, "%s\t%s\t%x", label, mnemonic, &start_address);
 
-    if (strcmp(opcode, "START") == 0)
+    if (strcmp(mnemonic, "START") == 0)
     {
         START = start_address;
         LOCCTR = START;
 
         // First line doesn't require a location.
-        fprintf(intermediate_file, "%s\t%s\t%x\n", label, opcode, start_address);
+        fprintf(intermediate_file, "%s\t%s\t%x\n", label, mnemonic, start_address);
 
         // read next input line
-        fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
+        fscanf(input_file, "%s\t%s\t%s", label, mnemonic, operand);
     }
     else
     {
@@ -60,16 +60,16 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         return ERROR_VALUE;
     }
 
-    while (strcmp(opcode, "END") != 0)
+    while (strcmp(mnemonic, "END") != 0)
     {
         // if comment line, then go to next line
         if (strcmp(label, ".") == 0)
         {
-            fscanf(input_file, "%s\t%s\t%s\n", label, opcode, operand);
+            fscanf(input_file, "%s\t%s\t%s\n", label, mnemonic, operand);
             continue;
         }
 
-        fprintf(intermediate_file, "%x\t%s\t%s\t%s\n", LOCCTR, label, opcode, operand);
+        fprintf(intermediate_file, "%x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
 
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
@@ -84,21 +84,21 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         }
 
         // search OPTAB for opcode.
-        int opcode_found = opcode_search(opcode);
+        int opcode_found = opcode_search(mnemonic);
 
-        if (opcode_found && opcode[0] != '+')
+        if (opcode_found && mnemonic[0] != '+')
             LOCCTR += 3;
-        else if (opcode_found && opcode[0] == '+')
+        else if (opcode_found && mnemonic[0] == '+')
             LOCCTR += 4;
-        else if (opcode_found && opcode[strlen(opcode) - 1] == 'R')
+        else if (opcode_found && mnemonic[strlen(mnemonic) - 1] == 'R')
             LOCCTR += 2;
-        else if (strcmp(opcode, "WORD") == 0)
+        else if (strcmp(mnemonic, "WORD") == 0)
             LOCCTR += 3;
-        else if (strcmp(opcode, "RESW") == 0)
+        else if (strcmp(mnemonic, "RESW") == 0)
             LOCCTR += (atoi(operand) * 3);
-        else if (strcmp(opcode, "RESB") == 0)
+        else if (strcmp(mnemonic, "RESB") == 0)
             LOCCTR += (atoi(operand));
-        else if (strcmp(opcode, "BYTE") == 0)
+        else if (strcmp(mnemonic, "BYTE") == 0)
         {
             if (operand[0] == 'X')
                 LOCCTR++;
@@ -107,12 +107,12 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         }
         else
         {
-            printf("ERROR: Invalid OPCODE (%s) at %x.\n", opcode, LOCCTR);
+            printf("ERROR: Invalid OPCODE (%s) at %x.\n", mnemonic, LOCCTR);
             return ERROR_VALUE;
         }
 
         // Read next line
-        fscanf(input_file, "%s\t%s\t%s", label, opcode, operand);
+        fscanf(input_file, "%s\t%s\t%s", label, mnemonic, operand);
     }
 
     int program_length = LOCCTR - START;

@@ -50,13 +50,13 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
     int location;
     char label[MAX_TOKEN_LENGTH];
-    char opcode[MAX_TOKEN_LENGTH];
+    char mnemonic[MAX_TOKEN_LENGTH];
     char operand[MAX_TOKEN_LENGTH];
 
-    fscanf(input_file, "%s\t%s\t%x", program_name, opcode, &start_address);
+    fscanf(input_file, "%s\t%s\t%x", program_name, mnemonic, &start_address);
 
-    if (strcmp(opcode, "START") == 0)
-        fprintf(assembly_listing, "%s\t%s\t%x\n", program_name, opcode, start_address);
+    if (strcmp(mnemonic, "START") == 0)
+        fprintf(assembly_listing, "%s\t%s\t%x\n", program_name, mnemonic, start_address);
     else
     {
         printf("ERROR: Assembler expects START opcode in line 1.\n");
@@ -82,11 +82,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     int text_record_start_address = start_address;
     init_pc_file();
 
-    while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, opcode, operand) > 0)
+    while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, mnemonic, operand) > 0)
     {
         increment_pc();
         // No comments in intermediate file.
-        if (opcode_search(opcode))
+        if (opcode_search(mnemonic))
         {
             int symbol_address;
             if (strcmp(operand, EMPTY) != 0)
@@ -103,9 +103,9 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                 symbol_address = 0;
 
             // assemble object code
-            assembled_object_code = assemble_instruction(opcode, operand, symbol_address);
+            assembled_object_code = assemble_instruction(mnemonic, operand, symbol_address);
         }
-        else if (strcmp(opcode, "BYTE") == 0)
+        else if (strcmp(mnemonic, "BYTE") == 0)
         {
             char operand_without_extraneous[MAX_TOKEN_LENGTH];
             get_literal_value(operand_without_extraneous, operand);
@@ -120,14 +120,14 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                 return ERROR_VALUE;
             }
         }
-        else if (strcmp(opcode, "WORD") == 0)
+        else if (strcmp(mnemonic, "WORD") == 0)
             assembled_object_code = (unsigned long long int)strtol(operand, NULL, 16);
-        else if (strcmp(opcode, "BASE") == 0)
+        else if (strcmp(mnemonic, "BASE") == 0)
         {
             BASE = symbol_value(operand);
             continue;
         }
-        else if (strcmp(opcode, "RESW") == 0 || strcmp(opcode, "WORD") == 0)
+        else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "WORD") == 0)
             continue;
 
         int obj_code_length = get_object_code_length(assembled_object_code);
@@ -146,7 +146,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
         fprintf(temp_text_record, "%0*llx", obj_code_length, assembled_object_code);
-        fprintf(assembly_listing, "%x\t%s\t%s\t%s\t%llx\n", location, label, opcode, operand, assembled_object_code);
+        fprintf(assembly_listing, "%x\t%s\t%s\t%s\t%llx\n", location, label, mnemonic, operand, assembled_object_code);
     }
 
     fclose(temp_text_record);

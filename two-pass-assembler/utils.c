@@ -56,17 +56,17 @@ int symbol_value(char *req_symbol)
     return 0;
 }
 
-int opcode_search(char opcode[])
+int opcode_search(char mnemonic[])
 {
     // Returns 0 if opcode not found.
     // Returns 1 if found.
 
     FILE *opcode_table = fopen("OPTAB.txt", "r");
-    char cmp_opcode[MAX_TOKEN_LENGTH];
+    char cmp_mnemonic[MAX_TOKEN_LENGTH];
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
-    while (fscanf(opcode_table, "%s\t%*d\t%*x", cmp_opcode) > 0)
-        if (strcmp(opcode, cmp_opcode) == 0)
+    while (fscanf(opcode_table, "%s\t%*d\t%*x", cmp_mnemonic) > 0)
+        if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
             fclose(opcode_table);
             return 1;
@@ -76,42 +76,42 @@ int opcode_search(char opcode[])
     return 0;
 }
 
-int opcode_value(char opcode[])
+int opcode_value(char mnemonic[])
 {
     // Returns -1 if opcode not found.
     // Returns hex value of the opcode if found.
 
     FILE *opcode_table = fopen("OPTAB.txt", "r");
-    char cmp_opcode[MAX_TOKEN_LENGTH];
-    int mnemonic_opcode;
+    char cmp_mnemonic[MAX_TOKEN_LENGTH];
+    int opcode;
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
-    while (fscanf(opcode_table, "%s\t%*d\t%x", cmp_opcode, &mnemonic_opcode) > 0)
-        if (strcmp(opcode, cmp_opcode) == 0)
+    while (fscanf(opcode_table, "%s\t%*d\t%x", cmp_mnemonic, &opcode) > 0)
+        if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
             fclose(opcode_table);
-            return mnemonic_opcode;
+            return opcode;
         }
 
     fclose(opcode_table);
     return -1;
 }
 
-int opcode_instruction_format(char opcode[])
+int opcode_instruction_format(char mnemonic[])
 {
     // Returns -1 if opcode not found.
     // Returns the instruction format of that opcode if found.
 
     FILE *opcode_table = fopen("OPTAB.txt", "r");
-    char cmp_opcode[MAX_TOKEN_LENGTH];
+    char cmp_mnemonic[MAX_TOKEN_LENGTH];
     int format;
 
     // There are no opcodes which are exclusively 3 or exclusively 4.
     // A format 3 opcode can also be used as a format 4 opcode.
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
-    while (fscanf(opcode_table, "%s\t%d\t%*x", cmp_opcode, &format) > 0)
-        if (strcmp(opcode, cmp_opcode) == 0)
+    while (fscanf(opcode_table, "%s\t%d\t%*x", cmp_mnemonic, &format) > 0)
+        if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
             fclose(opcode_table);
             return format;
