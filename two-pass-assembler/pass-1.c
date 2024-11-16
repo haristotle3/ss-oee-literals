@@ -85,13 +85,16 @@ int passOne(FILE *input_file, FILE *intermediate_file)
 
         // search OPTAB for opcode.
         int opcode_found = opcode_search(mnemonic);
+        int instruction_format = opcode_instruction_format(mnemonic);
 
-        if (opcode_found && mnemonic[0] != '+')
-            LOCCTR += 3;
-        else if (opcode_found && mnemonic[0] == '+')
-            LOCCTR += 4;
-        else if (opcode_found && mnemonic[strlen(mnemonic) - 1] == 'R')
+        if (opcode_found && instruction_format == 1)
+            LOCCTR += 1;
+        else if (opcode_found && instruction_format == 2)
             LOCCTR += 2;
+        else if (opcode_found && instruction_format == 3)
+            LOCCTR += 3;
+        else if (opcode_found && instruction_format == 4)
+            LOCCTR += 4;
         else if (strcmp(mnemonic, "WORD") == 0)
             LOCCTR += 3;
         else if (strcmp(mnemonic, "RESW") == 0)
