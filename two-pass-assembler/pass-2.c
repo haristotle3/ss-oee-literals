@@ -170,6 +170,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         fputc(ch, object_program);
 
     fclose(temp_text_record);
+    remove("Temp_text_record.txt");
 
     // Write the end record
     fprintf(object_program, "E%06x\n", start_address);
