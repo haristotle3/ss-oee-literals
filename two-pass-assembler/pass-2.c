@@ -189,9 +189,10 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
                 r1 = reg_number;
 
         // Find r2 number
-        for (int reg_number = 0; reg_number < NUM_REGISTERS; reg_number++)
-            if (operand[2] == registers[reg_number])
-                r2 = reg_number;
+        if (strlen(operand) == 3) // If there are two registers in operand, then only.
+            for (int reg_number = 0; reg_number < NUM_REGISTERS; reg_number++)
+                if (operand[2] == registers[reg_number])
+                    r2 = reg_number;
 
         assembled_object_code <<= 4;
         assembled_object_code += r1;
