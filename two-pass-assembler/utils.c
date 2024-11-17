@@ -53,6 +53,7 @@ int symbol_value(char *req_symbol)
             return symbol_value;
     }
 
+    fclose(symbol_table);
     return 0;
 }
 
@@ -83,7 +84,7 @@ int opcode_search(char mnemonic[])
             fclose(opcode_table);
             return 1;
         }
-        else if (strcmp(mnemonic, cmp_format_4) == 0)
+        if (strcmp(mnemonic, cmp_format_4) == 0)
         {
             fclose(opcode_table);
             return 1;
@@ -112,7 +113,7 @@ int opcode_value(char mnemonic[])
             fclose(opcode_table);
             return opcode;
         }
-        else if (strcmp(mnemonic, cmp_format_4) == 0)
+        if (strcmp(mnemonic, cmp_format_4) == 0)
         {
             fclose(opcode_table);
             return opcode;
@@ -144,13 +145,13 @@ int opcode_instruction_format(char mnemonic[])
             fclose(opcode_table);
             return format;
         }
-        else if (strcmp(mnemonic, cmp_format_4) == 0)
+        if (strcmp(mnemonic, cmp_format_4) == 0)
         {
             fclose(opcode_table);
             return format + 1;
         }
     }
-    
+
     fclose(opcode_table);
     return -1;
 }

@@ -199,7 +199,7 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
         assembled_object_code <<= 4;
         assembled_object_code += r2;
     }
-    else if (instruction_format >= 3) 
+    else if (instruction_format == 3 || instruction_format == 4)
     {
         assembled_object_code = opcode_value(mnemonic);
         assembled_object_code <<= 2;
@@ -226,7 +226,6 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
         assembled_object_code <<= 2;
         int displacement = symbol_address - PROGRAM_COUNTER;
 
-        
         if (-2048 <= displacement && displacement <= +2047)
             assembled_object_code += 1; // Set P flag to 1;
         else if (0 <= displacement && displacement <= 4095)
