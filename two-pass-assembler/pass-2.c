@@ -17,7 +17,6 @@ void init_pc_file();
 FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
 int BASE = 0;
-int INDEX_REG = 0;
 
 int main()
 {
@@ -172,15 +171,14 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
     unsigned long long int assembled_object_code;
     int instruction_format = opcode_instruction_format(mnemonic);
 
-    // Register table:
-    // PC and SW are not needed, however SW can be used for error flags.
-    // For now its not needed.
-    char registers[NUM_REGISTERS] = {'A', 'X', 'L', 'B', 'S', 'T', 'F'};
-
     if (instruction_format == 1)
         assembled_object_code = opcode_value(mnemonic);
     else if (instruction_format == 2)
     {
+        // Register table:
+        // PC and SW are not needed, however SW can be used for error flags.
+        // For now its not needed.
+        char registers[NUM_REGISTERS] = {'A', 'X', 'L', 'B', 'S', 'T', 'F'};
         int r1 = 0, r2 = 0;
 
         assembled_object_code = opcode_value(mnemonic);
@@ -201,7 +199,7 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
         assembled_object_code <<= 4;
         assembled_object_code += r2;
     }
-    else if (instruction_format == 3)
+    else if (instruction_format == 3 || instruction_format == 4)
     {
         assembled_object_code = opcode_value(mnemonic);
         assembled_object_code <<= 2;
@@ -216,10 +214,38 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
             // neither immediate nor indirect
             assembled_object_code += 3;
 
-        assembled_object_code <<= 4;
         // Dealing with x, b, p, e flags
-        // I think it would be better if we had an array of registers;
+        // We don't need any other registers as variables other than program counter and base
+
+        // X flag
+        assembled_object_code <<= 1;
+        if (operand[strlen(operand) - 1] == 'X')
+            assembled_object_code += 1; // Set X flag to 1;
+
+        // B and P flags
+        assembled_object_code <<= 2;
+        int displacement = symbol_address - PROGRAM_COUNTER;
+
+        if (-2048 <= displacement && displacement <= +2047)
+            assembled_object_code += 1; // Set P flag to 1;
+        else if (0 <= displacement && displacement <= 4095)
+            assembled_object_code += 2; // Set B flag to 1;
+
+        // Set E flag
+        assembled_object_code <<= 1;
+        if (instruction_format == 4)
+            assembled_object_code += 1;
+
+        // Add displacement field.
+        if (instruction_format == 3)
+            assembled_object_code <<= 12;
+        else if (instruction_format == 4)
+            assembled_object_code <<= 20;
+
+        assembled_object_code += displacement;
     }
+
+    return assembled_object_code;
 }
 
 void init_pc_file()
