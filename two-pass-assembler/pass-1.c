@@ -85,7 +85,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         // search OPTAB for opcode.
         int opcode_found = opcode_search(mnemonic);
         int instruction_format = opcode_instruction_format(mnemonic);
-
+        
         if (opcode_found && instruction_format == 1)
             LOCCTR += 1;
         else if (opcode_found && instruction_format == 2)

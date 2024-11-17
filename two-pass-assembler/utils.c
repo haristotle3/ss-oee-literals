@@ -83,7 +83,7 @@ int opcode_search(char mnemonic[])
     char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
-    while (fscanf(opcode_table, "%s\t%*d\t%*x", cmp_mnemonic) > 0)
+    while (fscanf(opcode_table, "%s\t%*d\t%*x\n", cmp_mnemonic) > 0)
     {
         strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
