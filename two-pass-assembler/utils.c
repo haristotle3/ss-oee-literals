@@ -63,14 +63,23 @@ int opcode_search(char mnemonic[])
 
     FILE *opcode_table = fopen("OPTAB.txt", "r");
     char cmp_mnemonic[MAX_TOKEN_LENGTH];
+    char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
     while (fscanf(opcode_table, "%s\t%*d\t%*x", cmp_mnemonic) > 0)
+    {
+        strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
             fclose(opcode_table);
             return 1;
         }
+        else if (strcmp(mnemonic, cmp_format_4) == 0)
+        {
+            fclose(opcode_table);
+            return 1;
+        }
+    }
 
     fclose(opcode_table);
     return 0;
@@ -132,6 +141,7 @@ int opcode_instruction_format(char mnemonic[])
             return format + 1;
         }
     }
+    
     fclose(opcode_table);
     return -1;
 }
