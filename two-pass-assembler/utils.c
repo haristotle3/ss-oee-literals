@@ -198,7 +198,7 @@ int get_immediate_value(char operand[])
 {
     // Converts immediate value string to number and returns.
     int symbol_value = 0;
-    for (int i = 0; i < strlen(operand); i++)
+    for (int i = 1; i < strlen(operand); i++)
         symbol_value = 10 * symbol_value + (operand[i] - '0');
 
     return symbol_value;
