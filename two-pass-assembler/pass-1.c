@@ -71,7 +71,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         if (strcmp("BASE", mnemonic) != 0)
             fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
         else
-            fprintf(intermediate_file, "%s\t%s\t%s\t%s\n", "****", label, mnemonic, operand);
+            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, label, mnemonic, operand);
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
         {
@@ -125,8 +125,8 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     }
 
     int program_length = LOCCTR - START;
-    fprintf(intermediate_file, "%s\t%s\t%s\n", "****", "END", "\t****");
-    printf("Pass 1 of 2 of two completed successfully.");
+    fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, "****", "END", "****");
+    printf("Pass 1 of 2 of two completed successfully.\n");
 
     return program_length;
 }

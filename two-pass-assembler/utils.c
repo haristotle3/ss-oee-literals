@@ -4,7 +4,7 @@
 #include <ctype.h>  // for isdigit()
 #include "utils.h"
 
-int symbol_search(char symbol[])
+int symbol_search(char input_symbol[])
 {
     // Returns 0 if symbol not found.
     // Returns 1 if found.
@@ -13,12 +13,19 @@ int symbol_search(char symbol[])
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
 
+    char symbol[MAX_TOKEN_LENGTH];
+    // Check if operand contains index register.
+    if (input_symbol[strlen(input_symbol) - 1] == 'X')
+        strncpy(symbol, input_symbol, strlen(input_symbol) - 2);
+    else
+        strcpy(symbol, input_symbol);
+
     while (fscanf(symbol_table, "%s\t%*x\n", cmp_symbol) > 0)
     {
         char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
         char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
-        strcat(cmp_immediate, symbol);
-        strcat(cmp_indirect, symbol);
+        strcat(cmp_immediate, cmp_symbol);
+        strcat(cmp_indirect, cmp_symbol);
 
         if (strcmp(symbol, cmp_symbol) == 0)
             return 1;
@@ -34,13 +41,20 @@ int symbol_search(char symbol[])
     return 0;
 }
 
-int symbol_value(char *req_symbol)
+int symbol_value(char *input_symbol)
 {
     // Returns 0 if symbol not found.
     // Returns the symbol address as assigned in (pass 1) if found
 
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
+
+    char symbol[MAX_TOKEN_LENGTH];
+    // Check if operand contains index register.
+    if (input_symbol[strlen(input_symbol) - 1] == 'X')
+        strncpy(symbol, input_symbol, strlen(input_symbol) - 2);
+    else
+        strcpy(symbol, input_symbol);
 
     int symbol_value;
 
@@ -51,14 +65,14 @@ int symbol_value(char *req_symbol)
         strcat(cmp_immediate, cmp_symbol);
         strcat(cmp_indirect, cmp_symbol);
 
-        if (strcmp(req_symbol, cmp_symbol) == 0)
+        if (strcmp(symbol, cmp_symbol) == 0)
             return symbol_value;
-        if (strcmp(req_symbol, cmp_immediate) == 0)
+        if (strcmp(symbol, cmp_immediate) == 0)
             return symbol_value;
-        if (strcmp(req_symbol, cmp_indirect) == 0)
+        if (strcmp(symbol, cmp_indirect) == 0)
             return symbol_value;
-        if (is_immediate_number(req_symbol))
-            return get_immediate_value(req_symbol);
+        if (is_immediate_number(symbol))
+            return get_immediate_value(symbol);
     }
 
     fclose(symbol_table);

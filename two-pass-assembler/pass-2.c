@@ -4,6 +4,8 @@
 #include <math.h>
 #include "utils.h"
 
+int passTwo(FILE *, FILE *, FILE *);
+
 unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
 void get_literal_value(char *, char *);
@@ -78,7 +80,6 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     // to appropriate value.
 
     unsigned long long int assembled_object_code = 0;
-    int text_record_length = 0;
     int text_record_start_address = start_address;
     init_pc_file();
 
@@ -88,19 +89,19 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         // No comments in intermediate file.
         if (opcode_search(mnemonic))
         {
-            int symbol_address;
+
+            int symbol_address = 0;
             if (strcmp(operand, EMPTY) != 0)
             {
-                if (symbol_search(operand))
+                // If instruction is format 2, then operand will be registers.
+                if (opcode_instruction_format(mnemonic) != 2 && symbol_search(operand))
                     symbol_address = symbol_value(operand);
-                else
+                else if (opcode_instruction_format(mnemonic) != 2)
                 {
                     printf("ERROR: %s doesn't exist in SYMTAB.\n", operand);
                     return ERROR_VALUE;
                 }
             }
-            else
-                symbol_address = 0;
 
             // assemble object code
             assembled_object_code = assemble_instruction(mnemonic, operand, symbol_address);
@@ -146,7 +147,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
         fprintf(temp_text_record, "%0*llx", obj_code_length, assembled_object_code);
-        fprintf(assembly_listing, "%x\t%s\t%s\t%s\t%llx\n", location, label, mnemonic, operand, assembled_object_code);
+
+        if (strcmp(mnemonic, "END") != 0)
+            fprintf(assembly_listing, "%04x\t%s\t%s\t%s\t%llx\n", location, label, mnemonic, operand, assembled_object_code);
+        else
+            fprintf(assembly_listing, "%04s\t%s\n", "****", label, mnemonic);
     }
 
     fclose(temp_text_record);
@@ -160,8 +165,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fclose(temp_text_record);
 
     // Write the end record
-    fprintf(object_program, "E%06x\n", start_address);
+    fprintf(object_program, "\nE%06x\n", start_address);
     fclose(PROGRAM_COUNTER_FILE);
+
+    printf("Pass 2 of 2 of two completed successfully.\n");
+
     return 1;
 }
 
