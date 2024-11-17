@@ -45,6 +45,7 @@ int symbol_value(char *input_symbol)
 {
     // Returns 0 if symbol not found.
     // Returns the symbol address as assigned in (pass 1) if found
+    // Returns the immediate value string, converted to numeric value.
 
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];

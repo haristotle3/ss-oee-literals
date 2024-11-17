@@ -46,6 +46,7 @@ int main()
 
 int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 {
+
     char program_name[MAX_TOKEN_LENGTH];
     int start_address;
     int length;
@@ -89,7 +90,6 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         // No comments in intermediate file.
         if (opcode_search(mnemonic))
         {
-
             int symbol_address = 0;
             if (strcmp(operand, EMPTY) != 0)
             {
@@ -128,8 +128,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             BASE = symbol_value(operand);
             continue;
         }
-        else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "WORD") == 0)
+        else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "RESB") == 0)
+        {
+            fprintf(assembly_listing, "%04x\t%s\t%s\t%s\n", location, label, mnemonic, operand);
             continue;
+        }
 
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 69)
@@ -234,17 +237,25 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
         assembled_object_code <<= 2;
         int displacement;
 
-        if (operand[0] == '#')
-            displacement = symbol_address;
-        else
+        if (operand[0] != '#' &&
+            -2048 <= (symbol_address - PROGRAM_COUNTER) &&
+            (symbol_address - PROGRAM_COUNTER) <= +2047)
+        {
+            // Set P flag to 1;
             displacement = symbol_address - PROGRAM_COUNTER;
+            assembled_object_code += 1;
+        }
 
-        if (operand[0] != '#' && -2048 <= displacement && displacement <= +2047)
-            assembled_object_code += 1; // Set P flag to 1;
-        else if (operand[0] != '#' && 0 <= displacement && displacement <= 4095)
-            assembled_object_code += 2; // Set B flag to 1;
-        else // value too big to be addressed from base relative or PC relative.
-        // It will be a format 4 instruction.
+        else if (operand[0] != '#' &&
+                 0 <= (symbol_address - BASE) &&
+                 (symbol_address - BASE) <= 4095)
+        {
+            displacement = symbol_address - BASE;
+            assembled_object_code += 2;
+        } // Set B flag to 1;
+        else if (is_immediate_number(operand) || instruction_format == 4)
+            // value too big to be addressed from base relative or PC relative.
+            // It will be a format 4 instruction.
             displacement = symbol_address;
 
         // Set E flag

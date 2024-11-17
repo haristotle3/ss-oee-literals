@@ -68,10 +68,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             continue;
         }
 
-        if (strcmp("BASE", mnemonic) != 0)
-            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
-        else
-            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, label, mnemonic, operand);
+        fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
         {
