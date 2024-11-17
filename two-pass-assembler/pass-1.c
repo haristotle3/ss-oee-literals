@@ -4,7 +4,6 @@
 #include "utils.h"
 
 int passOne(FILE *, FILE *);
-void insert_symbol_to_SYMTAB(char *, int);
 
 int main()
 {
@@ -124,11 +123,3 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     return program_length;
 }
 
-void insert_symbol_to_SYMTAB(char symbol[], int location)
-{
-    FILE *symbol_table = fopen("SYMTAB.txt", "a");
-    fprintf(symbol_table, "%s\t%x\n", symbol, location);
-    fclose(symbol_table);
-
-    return;
-}

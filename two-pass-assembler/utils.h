@@ -7,8 +7,10 @@
 #define ERROR_VALUE -1
 #define NUM_REGISTERS 7
 
-int symbol_search(char *); 
+int symbol_search(char *);
 int symbol_value(char *);
+void insert_symbol_to_SYMTAB(char *, int);
+
 int opcode_search(char *);
 int opcode_instruction_format(char *);
 int opcode_value(char *);

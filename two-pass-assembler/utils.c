@@ -12,7 +12,7 @@ int symbol_search(char label[])
     char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
     char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
 
-    while (fscanf(symbol_table, "%s\t%*x", cmp_symbol) > 0)
+    while (fscanf(symbol_table, "%s\t%*x\n", cmp_symbol) > 0)
     {
         strcat(cmp_immediate, label);
         strcat(cmp_indirect, label);
@@ -40,7 +40,7 @@ int symbol_value(char *req_symbol)
     char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
     int symbol_value;
 
-    while (fscanf(symbol_table, "%s\t%x", cmp_symbol, &symbol_value) > 0)
+    while (fscanf(symbol_table, "%s\t%x\n", cmp_symbol, &symbol_value) > 0)
     {
         strcat(cmp_immediate, cmp_symbol);
         strcat(cmp_indirect, cmp_symbol);
@@ -54,6 +54,15 @@ int symbol_value(char *req_symbol)
     }
 
     return 0;
+}
+
+void insert_symbol_to_SYMTAB(char symbol[], int location)
+{
+    FILE *symbol_table = fopen("SYMTAB.txt", "a");
+    fprintf(symbol_table, "%s\t%x\n", symbol, location);
+    fclose(symbol_table);
+
+    return;
 }
 
 int opcode_search(char mnemonic[])
