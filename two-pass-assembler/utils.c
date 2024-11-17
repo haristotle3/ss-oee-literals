@@ -42,8 +42,8 @@ int symbol_value(char *req_symbol)
 
     while (fscanf(symbol_table, "%s\t%x", cmp_symbol, &symbol_value) > 0)
     {
-        strcat(cmp_immediate, req_symbol);
-        strcat(cmp_indirect, req_symbol);
+        strcat(cmp_immediate, cmp_symbol);
+        strcat(cmp_indirect, cmp_symbol);
 
         if (strcmp(req_symbol, cmp_symbol) == 0)
             return symbol_value;
@@ -84,14 +84,22 @@ int opcode_value(char mnemonic[])
     FILE *opcode_table = fopen("OPTAB.txt", "r");
     char cmp_mnemonic[MAX_TOKEN_LENGTH];
     int opcode;
-
+    char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
     while (fscanf(opcode_table, "%s\t%*d\t%x", cmp_mnemonic, &opcode) > 0)
+    {
+        strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
             fclose(opcode_table);
             return opcode;
         }
+        else if (strcmp(mnemonic, cmp_format_4) == 0)
+        {
+            fclose(opcode_table);
+            return opcode;
+        }
+    }
 
     fclose(opcode_table);
     return -1;
@@ -105,18 +113,25 @@ int opcode_instruction_format(char mnemonic[])
     FILE *opcode_table = fopen("OPTAB.txt", "r");
     char cmp_mnemonic[MAX_TOKEN_LENGTH];
     int format;
-
+    char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
     // There are no opcodes which are exclusively 3 or exclusively 4.
     // A format 3 opcode can also be used as a format 4 opcode.
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
     while (fscanf(opcode_table, "%s\t%d\t%*x", cmp_mnemonic, &format) > 0)
+    {
+        strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
             fclose(opcode_table);
             return format;
         }
-
+        else if (strcmp(mnemonic, cmp_format_4) == 0)
+        {
+            fclose(opcode_table);
+            return format + 1;
+        }
+    }
     fclose(opcode_table);
     return -1;
 }
