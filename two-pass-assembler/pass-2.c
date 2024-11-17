@@ -59,7 +59,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fscanf(input_file, "%s\t%s\t%x", program_name, mnemonic, &start_address);
 
     if (strcmp(mnemonic, "START") == 0)
-        fprintf(assembly_listing, "%s\t%s\t%x\n", program_name, mnemonic, start_address);
+        fprintf(assembly_listing, "%4s\t%8s\t%8x\n", program_name, mnemonic, start_address);
     else
     {
         printf("ERROR: Assembler expects START opcode in line 1.\n");
@@ -75,13 +75,13 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fprintf(object_program, "H%-6s%06x%06x\n", program_name, start_address, length);
 
     int text_record_length = 0;
+    int text_record_start_address = start_address;
     FILE *temp_text_record = fopen("Temp_text_record.txt", "w");
-    fprintf(temp_text_record, "%c%06x%02x", 'T', start_address, text_record_length);
+    fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
     // Later we have to use fseek() and fputc() to replace 0 (text record length)
     // to appropriate value.
 
     unsigned long long int assembled_object_code = 0;
-    int text_record_start_address = start_address;
     init_pc_file();
 
     while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, mnemonic, operand) > 0)
@@ -137,12 +137,13 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 69)
         {
+            fprintf(temp_text_record, "\n");
             update_text_record_length(temp_text_record, text_record_length);
 
             // Start new text_record.
-            text_record_length = 0;
+            text_record_length = obj_code_length;
             text_record_start_address = location;
-            fprintf(temp_text_record, "\n%c%06x%02x", 'T', text_record_start_address, text_record_length);
+            fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
         }
         else
             text_record_length += obj_code_length;
@@ -157,6 +158,9 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             fprintf(assembly_listing, "%4s\t%8s\t%8s\t%8s\n", "****", label, mnemonic, "****");
     }
 
+    fprintf(temp_text_record, "\n");
+    update_text_record_length(temp_text_record, text_record_length);
+
     fclose(temp_text_record);
 
     // Write to object program
@@ -168,7 +172,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fclose(temp_text_record);
 
     // Write the end record
-    fprintf(object_program, "\nE%06x\n", start_address);
+    fprintf(object_program, "E%06x\n", start_address);
     fclose(PROGRAM_COUNTER_FILE);
 
     printf("Pass 2 of 2 of two completed successfully.\n");
@@ -362,7 +366,7 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
     // Character from last (since 2 bytes is for text-record-length columns)
 
     // Therefore we have to index to -(60 + 2 + 2)th index.
-    fseek(temp_text_record, 2 * -(text_record_length)-2 - 2, SEEK_CUR);
+    fseek(temp_text_record, -2 * (text_record_length)-2 - 2, SEEK_CUR);
     fprintf(temp_text_record, "%02x", text_record_length);
 
     // Go back to the end of the file.
