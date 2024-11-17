@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h> // for atoi()
 #include <string.h> // for strcmp()
+#include <ctype.h>  // for isdigit()
 #include "utils.h"
 
-int symbol_search(char label[])
+int symbol_search(char symbol[])
 {
     // Returns 0 if symbol not found.
     // Returns 1 if found.
+    // Also returns 1 if symbol is determined to be an immediate number.
+
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
     char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
@@ -14,14 +17,16 @@ int symbol_search(char label[])
 
     while (fscanf(symbol_table, "%s\t%*x\n", cmp_symbol) > 0)
     {
-        strcat(cmp_immediate, label);
-        strcat(cmp_indirect, label);
+        strcat(cmp_immediate, symbol);
+        strcat(cmp_indirect, symbol);
 
-        if (strcmp(label, cmp_symbol) == 0)
+        if (strcmp(symbol, cmp_symbol) == 0)
             return 1;
-        if (strcmp(label, cmp_immediate) == 0)
+        if (strcmp(symbol, cmp_immediate) == 0)
             return 1;
-        if (strcmp(label, cmp_indirect) == 0)
+        if (strcmp(symbol, cmp_indirect) == 0)
+            return 1;
+        if (is_immediate_number(symbol))
             return 1;
     }
 
@@ -51,6 +56,8 @@ int symbol_value(char *req_symbol)
             return symbol_value;
         if (strcmp(req_symbol, cmp_indirect) == 0)
             return symbol_value;
+        if (is_immediate_number(req_symbol))
+            return get_immediate_value(req_symbol);
     }
 
     fclose(symbol_table);
@@ -154,4 +161,30 @@ int opcode_instruction_format(char mnemonic[])
 
     fclose(opcode_table);
     return -1;
+}
+
+int is_immediate_number(char operand[])
+{
+    // Returns 1 if its an immediate number
+    // Returns 0 if its not.
+    if (operand[0] == '#')
+    {
+        for (int i = 1; i < strlen(operand); i++)
+            if (!isdigit(operand[i]))
+                return 0;
+
+        return 1;
+    }
+    else
+        return 0;
+}
+
+int get_immediate_value(char operand[])
+{
+    // Converts immediate value string to number and returns.
+    int symbol_value = 0;
+    for (int i = 0; i < strlen(operand); i++)
+        symbol_value = 10 * symbol_value + (operand[i] - '0');
+
+    return symbol_value;
 }
