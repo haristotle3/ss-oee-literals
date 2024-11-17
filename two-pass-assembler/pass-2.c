@@ -130,7 +130,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
         else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "RESB") == 0)
         {
-            fprintf(assembly_listing, "%04x\t%s\t%s\t%s\n", location, label, mnemonic, operand);
+            fprintf(assembly_listing, "%04x\t%8s\t%8s\t%8s\n", location, label, mnemonic, operand);
             continue;
         }
 
@@ -149,12 +149,12 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
-        fprintf(temp_text_record, "%0*llx", obj_code_length, assembled_object_code);
+        fprintf(temp_text_record, "%0*llx", 2 * obj_code_length, assembled_object_code);
 
         if (strcmp(mnemonic, "END") != 0)
-            fprintf(assembly_listing, "%04x\t%s\t%s\t%s\t%llx\n", location, label, mnemonic, operand, assembled_object_code);
+            fprintf(assembly_listing, "%04x\t%8s\t%8s\t%8s\t%0*llx\n", location, label, mnemonic, operand, 2 * obj_code_length, assembled_object_code);
         else
-            fprintf(assembly_listing, "%s\t%s\t%s\t%s\n", "****", label, mnemonic, "****");
+            fprintf(assembly_listing, "%4s\t%8s\t%8s\t%8s\n", "****", label, mnemonic, "****");
     }
 
     fclose(temp_text_record);
@@ -316,7 +316,7 @@ int get_object_code_length(unsigned long long int assembled_object_code)
     // By change of base formula,
     // log16(x) = log2(x)/log2(16) = log2(x) / 4
 
-    return ceil(log2(assembled_object_code) / 4 / 2);
+    return (int)ceil(log2(assembled_object_code) / 4.0 / 2.0);
 }
 
 unsigned long long int get_string_literal_hex(char operand_without_extraneous[])
