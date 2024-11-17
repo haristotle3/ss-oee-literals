@@ -118,7 +118,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     }
 
     int program_length = LOCCTR - START;
-    printf("Success!");
+    printf("Pass 1 of 2 of two completed successfully.");
 
     return program_length;
 }
