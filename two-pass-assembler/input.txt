@@ -18,11 +18,11 @@ EOF     BYTE    C'EOF'
 RETADR  RESW    1
 LENGTH  RESW    1
 BUFFER  RESB    4096
-.
+.       .       .
 .       this_is_a_comment     seperate_words_without_whitespaces
-.       
+.       .       .
 .       subroutine  to_read_record_into_buffer
-.
+.       .       .
 RDREC   CLEAR   X
 ****    CLEAR   A
 ****    CLEAR   S
@@ -38,9 +38,9 @@ RLOOP   TD      INPUT
 EXIT    STX     LENGTH
 ****    RSUB    ****
 INPUT   BYTE    X'F1'
-.
+.       .       .
 .       subroutine  to_read_record_into_buffer
-.
+.       .       .
 WRREC   CLEAR   X
 ****    LDT     LENGTH
 WLOOP   TD      OUTPUT

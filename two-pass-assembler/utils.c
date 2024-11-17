@@ -12,11 +12,11 @@ int symbol_search(char symbol[])
 
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
-    char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
-    char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
 
     while (fscanf(symbol_table, "%s\t%*x\n", cmp_symbol) > 0)
     {
+        char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
+        char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
         strcat(cmp_immediate, symbol);
         strcat(cmp_indirect, symbol);
 
@@ -41,12 +41,13 @@ int symbol_value(char *req_symbol)
 
     FILE *symbol_table = fopen("SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
-    char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
-    char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
+
     int symbol_value;
 
     while (fscanf(symbol_table, "%s\t%x\n", cmp_symbol, &symbol_value) > 0)
     {
+        char cmp_immediate[MAX_TOKEN_LENGTH] = "#";
+        char cmp_indirect[MAX_TOKEN_LENGTH] = "@";
         strcat(cmp_immediate, cmp_symbol);
         strcat(cmp_indirect, cmp_symbol);
 
@@ -80,11 +81,11 @@ int opcode_search(char mnemonic[])
 
     FILE *opcode_table = fopen("OPTAB.txt", "r");
     char cmp_mnemonic[MAX_TOKEN_LENGTH];
-    char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
     while (fscanf(opcode_table, "%s\t%*d\t%*x\n", cmp_mnemonic) > 0)
     {
+        char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
         strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
@@ -110,10 +111,10 @@ int opcode_value(char mnemonic[])
     FILE *opcode_table = fopen("OPTAB.txt", "r");
     char cmp_mnemonic[MAX_TOKEN_LENGTH];
     int opcode;
-    char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
     while (fscanf(opcode_table, "%s\t%*d\t%x", cmp_mnemonic, &opcode) > 0)
     {
+        char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
         strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {
@@ -139,13 +140,13 @@ int opcode_instruction_format(char mnemonic[])
     FILE *opcode_table = fopen("OPTAB.txt", "r");
     char cmp_mnemonic[MAX_TOKEN_LENGTH];
     int format;
-    char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
     // There are no opcodes which are exclusively 3 or exclusively 4.
     // A format 3 opcode can also be used as a format 4 opcode.
 
     // OPTAB has fields | MNEMONIC | FORMAT | OPCODE |
     while (fscanf(opcode_table, "%s\t%d\t%*x", cmp_mnemonic, &format) > 0)
     {
+        char cmp_format_4[MAX_TOKEN_LENGTH] = "+";
         strcat(cmp_format_4, cmp_mnemonic);
         if (strcmp(mnemonic, cmp_mnemonic) == 0)
         {

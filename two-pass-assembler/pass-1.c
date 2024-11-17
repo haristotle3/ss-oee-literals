@@ -68,8 +68,10 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             continue;
         }
 
-        fprintf(intermediate_file, "%x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
-
+        if (strcmp("BASE", mnemonic) != 0)
+            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
+        else
+            fprintf(intermediate_file, "%s\t%s\t%s\t%s\n", "****", label, mnemonic, operand);
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
         {
@@ -85,7 +87,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         // search OPTAB for opcode.
         int opcode_found = opcode_search(mnemonic);
         int instruction_format = opcode_instruction_format(mnemonic);
-        
+
         if (opcode_found && instruction_format == 1)
             LOCCTR += 1;
         else if (opcode_found && instruction_format == 2)
@@ -107,6 +109,11 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             else if (operand[0] == 'C')
                 LOCCTR += strlen(operand) - 3; // Subrtact 1 each for the character C, and the two quote marks.
         }
+        else if (strcmp(mnemonic, "BASE") == 0)
+        {
+            fscanf(input_file, "%s\t%s\t%s\n", label, mnemonic, operand);
+            continue;
+        }
         else
         {
             printf("ERROR: Invalid OPCODE (%s) at %x.\n", mnemonic, LOCCTR);
@@ -118,8 +125,8 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     }
 
     int program_length = LOCCTR - START;
+    fprintf(intermediate_file, "%s\t%s\t%s\n", "****", "END", "\t****");
     printf("Pass 1 of 2 of two completed successfully.");
 
     return program_length;
 }
-
