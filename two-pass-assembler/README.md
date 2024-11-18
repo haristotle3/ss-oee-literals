@@ -4,7 +4,6 @@ Fully working two-pass-assembler for the hypothetical SIC/XE computer
 
 # Important note:
 
-- Make sure SYMTAB.txt is either empty or doesn't exist before executing pass-1
 - `RSUB` instruction is format 1 instruction in this assembler. (changed from format 3).
 
 ## Notes

@@ -3,6 +3,7 @@
 #include <string.h> // for strcmp()
 #include "utils.h"
 
+void init_symtab();
 int passOne(FILE *, FILE *);
 
 int main()
@@ -18,6 +19,7 @@ int main()
     // The program is written in a fixed format with fields
     // LABEL, OPCODE and OPERAND
 
+    init_symtab();
     int program_length = passOne(input_file, intermediate_file);
 
     fclose(input_file);
@@ -126,4 +128,13 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     printf("Pass 1 of 2 of two completed successfully.\n");
 
     return program_length;
+}
+
+void init_symtab()
+{
+    // Erases contents of SYMTAB if it exists, else creates anew.
+    FILE* symbol_table = fopen("SYMTAB.txt", "w");
+    fclose(symbol_table);
+
+    return;
 }
