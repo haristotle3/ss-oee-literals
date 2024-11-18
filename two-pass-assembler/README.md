@@ -27,4 +27,5 @@ Both pass-1 and pass-2 can be executed in one command:
 
 `input.txt`, `OPTAB.txt` are written in this directory for reference.
 
-Assembler produces object_program and program_listing as outputs.
+Pass 1 produces `intermediate.txt`, `SYMTAB.txt` and `program_length.txt` as outputs.
+Pass 2 produces `object_program.txt` and `program_listing.txt` as outputs.
