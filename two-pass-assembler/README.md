@@ -8,9 +8,14 @@ Fully working two-pass-assembler for the hypothetical SIC/XE computer
 - End record in object program contains the _same address as provided in the first line of the input assembly program_. This is actually incorrect, since end record should have the address of the first _executable_ instruction. Future revisions to the code could fix that feature.
 
 ## Notes
-
+On windows:
 To execute pass 1 execute the following command:
 `gcc -o pass-1.exe pass-1.c utils.c && ./pass-1.exe`
+
+Linux requires explicit linking of `math.h` library. Therefore,
+`gcc -o pass-1.exe pass-1.c utils.c -lm`
+
+Use the `-lm` argument to execute pass 2 as well. 
 
 `input.txt` contains the assembly program whose object code is to be generated.
 
