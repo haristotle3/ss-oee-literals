@@ -173,6 +173,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     remove("Temp_text_record.txt");
 
     // Write the end record
+    // This is not really the correct logic
+    // Refer README.md
     fprintf(object_program, "E%06x\n", start_address);
     fclose(PROGRAM_COUNTER_FILE);
 

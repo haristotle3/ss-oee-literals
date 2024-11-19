@@ -5,6 +5,7 @@ Fully working two-pass-assembler for the hypothetical SIC/XE computer
 # Important note:
 
 - `RSUB` instruction is format 1 instruction in this assembler. (changed from format 3).
+- End record in object program contains the _same address as provided in the first line of the input assembly program_. This is actually incorrect, since end record should have the address of the first 'executable' instruction.
 
 ## Notes
 
@@ -14,10 +15,10 @@ To execute pass 1 execute the following command:
 `input.txt` contains the assembly program whose object code is to be generated.
 
 Program must be written in 3 columns/fields `LABEL    MNEMONIC   OPERAND`
-Comments should have a `.` in the `LABEL` field. Both `MNEMONIC` and `OPERAND` field MUST have atleast one character in the comment line, else assembler will cause unexpected behaviour
+Comments should have a `.` in the `LABEL` field. Both `MNEMONIC` and `OPERAND` field _must_ have atleast one character in the comment line, else assembler will cause unexpected behaviour
 Empty fields must be filled by the string `"****"`.
 
-`OPTAB.txt` contains mnemonics and their opcodes. It also has three fields `MNEMONIC    FORMAT  OPCODE`. Any changes to the OPTAB MUST maintain this structure. `FORMAT` refers to the 4 instruction formats in SIC/XE (of 1 byte, 2 bytes, 3 bytes and 4 bytes)
+`OPTAB.txt` contains mnemonics and their opcodes. It also has three fields `MNEMONIC    FORMAT  OPCODE`. Any changes to the OPTAB _must_ maintain this structure. `FORMAT` refers to the 4 instruction formats in SIC/XE (of 1 byte, 2 bytes, 3 bytes and 4 bytes)
 
 To execute pass 2 execute the following command:
 `gcc -o pass-2.exe pass-2.c utils.c && ./pass-2.exe`
