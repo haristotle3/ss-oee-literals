@@ -9,6 +9,7 @@ Fully working two-pass-assembler for the hypothetical SIC/XE computer
 
 ## Notes
 On windows:
+
 To execute pass 1 execute the following command:
 `gcc -o pass-1.exe pass-1.c utils.c && ./pass-1.exe`
 
