@@ -32,6 +32,10 @@ Empty fields must be filled by the string `"****"`.
 
 `gcc -o pass-1.exe pass-1.c utils.c && ./pass-1.exe && gcc -o pass-2.exe pass-2.c utils.c && ./pass-2.exe`
 
+There is a Linux-specific issue because the math library (libm) isn't linked by default. Use the following command to compile successfully:
+`gcc -o pass-2.exe pass-2.c utils.c -lm && ./pass-2.exe`
+
+
 `input.txt`, `OPTAB.txt` are written in this directory for reference.
 
 Pass 1 produces `intermediate.txt`, `SYMTAB.txt` and `program_length.txt` as outputs.
