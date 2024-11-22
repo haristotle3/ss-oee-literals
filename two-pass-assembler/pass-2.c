@@ -347,6 +347,7 @@ void get_literal_value(char operand_without_extraneous[], char operand[])
     // We use strncpy.
 
     strncpy(operand_without_extraneous, operand + 2, strlen(operand) - 3);
+    operand_without_extraneous[strlen(operand) - 3] = '\0';
     return;
 }
 

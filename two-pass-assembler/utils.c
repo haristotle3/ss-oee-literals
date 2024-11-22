@@ -16,7 +16,10 @@ int symbol_search(char input_symbol[])
     char symbol[MAX_TOKEN_LENGTH];
     // Check if operand contains index register.
     if (input_symbol[strlen(input_symbol) - 1] == 'X')
+    {
         strncpy(symbol, input_symbol, strlen(input_symbol) - 2);
+        symbol[strlen(input_symbol) - 2] = '\0';
+    }
     else
         strcpy(symbol, input_symbol);
 
@@ -53,7 +56,10 @@ int symbol_value(char *input_symbol)
     char symbol[MAX_TOKEN_LENGTH];
     // Check if operand contains index register.
     if (input_symbol[strlen(input_symbol) - 1] == 'X')
+    {
         strncpy(symbol, input_symbol, strlen(input_symbol) - 2);
+        symbol[strlen(input_symbol) - 2] = '\0';
+    }
     else
         strcpy(symbol, input_symbol);
 
