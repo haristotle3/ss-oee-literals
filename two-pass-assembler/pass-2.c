@@ -128,6 +128,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             BASE = symbol_value(operand);
             continue;
         }
+        else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "RESB") == 0)
+        {
+            fprintf(assembly_listing, "%04x\t%8s\t%8s\t%8s\n", location, label, mnemonic, operand);
+            continue;
+        }
 
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 30) // 30 bytes take up 60 columns, which is maximum that one text record can hold.
@@ -139,19 +144,6 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             text_record_length = obj_code_length;
             text_record_start_address = location;
             fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
-        }
-        else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "RESB") == 0)
-        {
-            fprintf(assembly_listing, "%04x\t%8s\t%8s\t%8s\n", location, label, mnemonic, operand);
-            // Break to new new text record incase of RESW or RESB
-            fprintf(temp_text_record, "\n");
-            update_text_record_length(temp_text_record, text_record_length);
-
-            // Start new text_record.
-            text_record_length = obj_code_length;
-            text_record_start_address = location;
-            fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
-            continue;
         }
         else
             text_record_length += obj_code_length;
