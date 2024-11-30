@@ -135,7 +135,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
 
         int obj_code_length = get_object_code_length(assembled_object_code);
-        if (text_record_length + obj_code_length > 69)
+        if (text_record_length + obj_code_length > 30) // 30 bytes take up 60 columns, which is maximum that one text record can hold.
         {
             fprintf(temp_text_record, "\n");
             update_text_record_length(temp_text_record, text_record_length);
@@ -150,6 +150,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
+        // Multiply by 2 to obj_code_length for leading zeroes.
         fprintf(temp_text_record, "%0*llx", 2 * obj_code_length, assembled_object_code);
 
         if (strcmp(mnemonic, "END") != 0)
