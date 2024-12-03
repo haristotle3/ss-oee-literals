@@ -37,20 +37,18 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
     char csect_name[MAX_BUF];
     int CSLTH = 0;
     int CSADDR;
+    int csect_addr;
 
     char input_record[MAX_BUF];
     char symbol_name[MAX_BUF];
     int indicated_address;
 
-    int first = 1;
+    CSADDR = PROGADDR; // for first control section
 
-    while (fscanf("%c%6s%6x%6x\n", &record_type, csect_name, &CSADDR, &CSLTH) > 0)
+    while (fscanf(object_programs, "%c%6s%6x%6x\n", &record_type, csect_name, &csect_addr, &CSLTH) > 0)
     {
-        if (first)
-        {
-            CSADDR = PROGADDR; // for first control section
-            first = 0;
-        }
+        if (record_type == '.')
+            continue;
 
         int found = search_csect_name(csect_name);
         if (found)
@@ -65,6 +63,9 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
         {
             fgets(input_record, MAX_BUF, object_programs);
             record_type = input_record[0];
+
+            if (record_type == '.')
+                continue;
 
             if (record_type == 'D')
             {
@@ -90,4 +91,71 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
 
         CSADDR += CSLTH;
     };
+}
+
+int search_csect_name(char *csect_name)
+{
+    FILE *ESTAB = fopen("ESTAB.txt", "r");
+
+    char current_name[MAX_BUF];
+
+    while (fscanf(ESTAB, "%s\t%*s\t%*s\t%*s\n", current_name) > 0)
+    {
+        if (strcmp(csect_name, current_name) == 0)
+            return 1;
+    }
+
+    fclose(ESTAB);
+    return 0;
+}
+
+void csect_name_insert(char *csect_name, int CSADDR, int CSLTH)
+{
+    FILE *ESTAB = fopen("ESTAB.txt", "a");
+    fprintf(ESTAB, "%10s%10s%10x%10x\n", csect_name, " ", CSADDR, CSLTH);
+    fclose(ESTAB);
+
+    return;
+}
+
+void get_symbol_name(char *symbol_name, char *input_record, int start_index)
+{
+    strncpy(symbol_name, input_record + start_index, WORD_SIZE);
+    symbol_name[WORD_SIZE] = '\0';
+
+    return;
+}
+
+int search_symbol(char *symbol_name)
+{
+    FILE *ESTAB = fopen("ESTAB.txt", "r");
+
+    char current_name[MAX_BUF];
+
+    while (fscanf(ESTAB, "%*s\t%s\t%*s\t%*s\n", current_name) > 0)
+    {
+        if (strcmp(symbol_name, current_name) == 0)
+            return 1;
+    }
+
+    fclose(ESTAB);
+    return 0;
+}
+
+int get_indicated_address(char *input_record, int start_index)
+{
+    char address_string[MAX_BUF];
+    strncpy(address_string, input_record + start_index + WORD_SIZE, WORD_SIZE);
+    int indicated_address = strtol(address_string, NULL, 16);
+
+    return indicated_address;
+}
+
+void symbol_insert(char *symbol_name, int target_address)
+{
+    FILE *ESTAB = fopen("ESTAB.txt", "a");
+    fprintf(ESTAB, "%10s%10s%10x%10s\n", " ", symbol_name, target_address, " ");
+    fclose(ESTAB);
+
+    return;
 }
