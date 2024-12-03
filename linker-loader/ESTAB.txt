@@ -1,0 +1,15 @@
+     PROGA                6000        63
+              LISTA       6040          
+              ENDA        6054          
+                   
+      6000          
+     PROGB                6063        7f
+              LISTB       60c3          
+              ENDB        60d3          
+                   
+    156062          
+     PROGC                60e2        51
+              LISTC       6112          
+              ENDC        6124          
+                   
+    1560e1          
