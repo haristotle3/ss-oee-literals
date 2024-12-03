@@ -25,6 +25,7 @@ int main()
     fscanf(load_address_file, "%x", &PROGADDR);
 
     ll_pass_one(object_programs, PROGADDR);
+    printf("Success!\n");
 }
 
 void ll_pass_one(FILE *object_programs, int PROGADDR)
@@ -70,7 +71,7 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
             if (record_type == 'D')
             {
                 // for each symbol in the record
-                for (int i = 1; i < strlen(input_record); i += 12)
+                for (int i = 1; i + 12 < strlen(input_record); i += 12)
                 {
                     get_symbol_name(symbol_name, input_record, i);
                     found = search_symbol(symbol_name);
@@ -112,9 +113,7 @@ int search_csect_name(char *csect_name)
 void csect_name_insert(char *csect_name, int CSADDR, int CSLTH)
 {
     FILE *ESTAB = fopen("ESTAB.txt", "a");
-    fprintf(stdout, "%-10s%-10s%-10x%-10s\n", "*", symbol_name, target_address, "*");
-    getchar();
-    fprintf(ESTAB, "%-10s%-10s%-10x%-10x\n", csect_name, "*", CSADDR, CSLTH);
+    fprintf(ESTAB, "%-10s%-10s%-10x%-10x\n", csect_name, " ", CSADDR, CSLTH);
     fclose(ESTAB);
 
     return;
@@ -123,7 +122,7 @@ void csect_name_insert(char *csect_name, int CSADDR, int CSLTH)
 void get_symbol_name(char *symbol_name, char *input_record, int start_index)
 {
     strncpy(symbol_name, input_record + start_index, WORD_SIZE);
-    symbol_name[WORD_SIZE] = '\0';
+    symbol_name[WORD_SIZE - 1] = '\0';
 
     return;
 }
@@ -133,10 +132,8 @@ int search_symbol(char *symbol_name)
     FILE *ESTAB = fopen("ESTAB.txt", "r");
 
     char current_name[MAX_BUF];
-
-    while (fscanf(ESTAB, "%*s\t%6s\t%*s\t%*s\n", current_name) > 0)
+    while (fscanf(ESTAB, "%*s\t%s\t%*s\t%*s\n", current_name) > 0)
     {
-        printf("CN: %s\t SN: %s \n", current_name, symbol_name);
         if (strcmp(symbol_name, current_name) == 0)
             return 1;
     }
@@ -157,9 +154,8 @@ int get_indicated_address(char *input_record, int start_index)
 void symbol_insert(char *symbol_name, int target_address)
 {
     FILE *ESTAB = fopen("ESTAB.txt", "a");
-    fprintf(stdout, "%-10s%-10s%-10x%-10s\n", "*", symbol_name, target_address, "*");
-    getchar();
-    fprintf(ESTAB, "%-10s%-10s%-10x%-10s\n", "*", symbol_name, target_address, "*");
+
+    fprintf(ESTAB, "%-10s%-10s%-10x%-10s\n", " ", symbol_name, target_address, " ");
     fclose(ESTAB);
 
     return;
