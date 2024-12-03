@@ -5,9 +5,15 @@
 #define WORD_SIZE 6
 
 void ll_pass_one(FILE *object_programs, int PROGADDR);
-int get_csect_length(char *input_record);
-void get_csect_name(char *csect_name, char *input_record);
+
 int search_csect_name(char *csect_name);
+void csect_name_insert(char *csect_name, int CSADDR, int CSLTH);
+
+void get_symbol_name(char *symbol_name, char *input_record, int start_index);
+int search_symbol(char *symbol_name);
+
+int get_indicated_address(char *input_record, int start_index);
+void symbol_insert(char *symbol_name, int target_address);
 
 int main()
 {
@@ -26,55 +32,62 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
     // create ESTAB.
     FILE *ESTAB = fopen("ESTAB.txt", "w");
     fclose(ESTAB);
-    int CSADDR = PROGADDR; // for first control section
+
+    char record_type;
+    char csect_name[MAX_BUF];
     int CSLTH = 0;
+    int CSADDR;
 
     char input_record[MAX_BUF];
-    char csect_name[MAX_BUF];
     char symbol_name[MAX_BUF];
     int indicated_address;
 
-    while (fgets(input_record, MAX_BUF, object_programs) != EOF)
-    {
-        CSLTH = get_csect_length(input_record);
-        get_csect_name(csect_name, input_record);
+    int first = 1;
 
-        // strncpy(csect_name, input_record + 1, WORD_SIZE);
-        // csect_name[WORD_SIZE] = '\0';
+    while (fscanf("%c%6s%6x%6x\n", &record_type, csect_name, &CSADDR, &CSLTH) > 0)
+    {
+        if (first)
+        {
+            CSADDR = PROGADDR; // for first control section
+            first = 0;
+        }
 
         int found = search_csect_name(csect_name);
-
         if (found)
         {
-            printf("ERROR: Duplicate control section symbol (%s)\n", csect_name);
+            printf("ERROR: Duplicate external symbol (%s)", csect_name);
             return;
         }
         else
-            insert_csect_to_estab(csect_name, CSADDR, CSLTH);
+            csect_name_insert(csect_name, CSADDR, CSLTH);
 
-        // while record_type != E
-        while (input_record[0] != 'E')
+        while (record_type != 'E')
         {
             fgets(input_record, MAX_BUF, object_programs);
-            if (input_record[0] == 'D')
+            record_type = input_record[0];
+
+            if (record_type == 'D')
             {
-                // for each symbol in record
+                // for each symbol in the record
                 for (int i = 1; i < strlen(input_record); i += 12)
                 {
                     get_symbol_name(symbol_name, input_record, i);
-                    found = search_symbol();
+                    found = search_symbol(symbol_name);
 
                     if (found)
                     {
-                        printf("ERROR: Duplicate external symbol (%s)\n", symbol_name);
+                        printf("ERROR: Duplicate external symbol (%s)", csect_name);
                         return;
                     }
                     else
                     {
                         indicated_address = get_indicated_address(input_record, i);
+                        symbol_insert(symbol_name, CSADDR + indicated_address);
                     }
                 }
             }
         }
-    }
+
+        CSADDR += CSLTH;
+    };
 }
