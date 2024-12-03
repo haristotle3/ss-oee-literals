@@ -1,15 +1,16 @@
-     PROGA                6000        63
-              LISTA       6040          
-              ENDA        6054          
-                   
-      6000          
-     PROGB                6063        7f
-              LISTB       60c3          
-              ENDB        60d3          
-                   
-    156062          
-     PROGC                60e2        51
-              LISTC       6112          
-              ENDC        6124          
-                   
-    1560e1          
+PROGA     *         4000      63        
+*         LISTA     4040      *         
+*         ENDA      4054      *         
+*         
+         4000      *         
+PROGB     *         4063      7f        
+*         LISTB     40c3      *         
+*         ENDB      40d3      *         
+*         LISTB     40a3      *         
+*         
+         4063      *         
+PROGC     *         40e2      51        
+*         LISTC     4112      *         
+*         ENDC      4124      *         
+*         
+         1540e1    *         

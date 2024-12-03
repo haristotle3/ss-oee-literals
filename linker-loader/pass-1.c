@@ -77,7 +77,7 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
 
                     if (found)
                     {
-                        printf("ERROR: Duplicate external symbol (%s)", csect_name);
+                        printf("ERROR: Duplicate external symbol (%s)", symbol_name);
                         return;
                     }
                     else
@@ -112,7 +112,9 @@ int search_csect_name(char *csect_name)
 void csect_name_insert(char *csect_name, int CSADDR, int CSLTH)
 {
     FILE *ESTAB = fopen("ESTAB.txt", "a");
-    fprintf(ESTAB, "%10s%10s%10x%10x\n", csect_name, " ", CSADDR, CSLTH);
+    fprintf(stdout, "%-10s%-10s%-10x%-10s\n", "*", symbol_name, target_address, "*");
+    getchar();
+    fprintf(ESTAB, "%-10s%-10s%-10x%-10x\n", csect_name, "*", CSADDR, CSLTH);
     fclose(ESTAB);
 
     return;
@@ -132,8 +134,9 @@ int search_symbol(char *symbol_name)
 
     char current_name[MAX_BUF];
 
-    while (fscanf(ESTAB, "%*s\t%s\t%*s\t%*s\n", current_name) > 0)
+    while (fscanf(ESTAB, "%*s\t%6s\t%*s\t%*s\n", current_name) > 0)
     {
+        printf("CN: %s\t SN: %s \n", current_name, symbol_name);
         if (strcmp(symbol_name, current_name) == 0)
             return 1;
     }
@@ -154,7 +157,9 @@ int get_indicated_address(char *input_record, int start_index)
 void symbol_insert(char *symbol_name, int target_address)
 {
     FILE *ESTAB = fopen("ESTAB.txt", "a");
-    fprintf(ESTAB, "%10s%10s%10x%10s\n", " ", symbol_name, target_address, " ");
+    fprintf(stdout, "%-10s%-10s%-10x%-10s\n", "*", symbol_name, target_address, "*");
+    getchar();
+    fprintf(ESTAB, "%-10s%-10s%-10x%-10s\n", "*", symbol_name, target_address, "*");
     fclose(ESTAB);
 
     return;
