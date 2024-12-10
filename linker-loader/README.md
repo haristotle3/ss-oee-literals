@@ -6,4 +6,4 @@
 
 `gcc -o pass-2.exe pass-2.c && ./pass-2.exe`
 
-# Object code instructions in `object_programs.txt` need to be seperated by spaces else we cannot differentiate between 2 instructions.
+# Object code instructions in `object_programs.txt` should NOT be seperated by spaces or a carat (`^`) symbol, else pass 2 implementation fails.
