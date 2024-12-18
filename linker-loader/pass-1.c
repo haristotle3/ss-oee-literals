@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #define MAX_BUF 512
 #define WORD_SIZE 6
+#define ERROR_VALUE -1
 
-void ll_pass_one(FILE *object_programs, int PROGADDR);
+int ll_pass_one(FILE *object_programs, int PROGADDR);
 
 int search_csect_name(char *csect_name);
 void csect_name_insert(char *csect_name, int CSADDR, int CSLTH);
@@ -24,11 +25,15 @@ int main()
     int PROGADDR;
     fscanf(load_address_file, "%x", &PROGADDR);
 
-    ll_pass_one(object_programs, PROGADDR);
-    printf("Success!\n");
+    if (ll_pass_one(object_programs, PROGADDR) == ERROR_VALUE)
+        printf("Loading failed.\n");
+    else
+        printf("Success!\n");
+
+    return 0;
 }
 
-void ll_pass_one(FILE *object_programs, int PROGADDR)
+int ll_pass_one(FILE *object_programs, int PROGADDR)
 {
     // create ESTAB.
     FILE *ESTAB = fopen("ESTAB.txt", "w");
@@ -55,7 +60,7 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
         if (found)
         {
             printf("ERROR: Duplicate external symbol (%s)", csect_name);
-            return;
+            return ERROR_VALUE;
         }
         else
             csect_name_insert(csect_name, CSADDR, CSLTH);
@@ -79,7 +84,7 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
                     if (found)
                     {
                         printf("ERROR: Duplicate external symbol (%s)", symbol_name);
-                        return;
+                        return ERROR_VALUE;
                     }
                     else
                     {
@@ -92,6 +97,8 @@ void ll_pass_one(FILE *object_programs, int PROGADDR)
 
         CSADDR += CSLTH;
     };
+
+    return 1;
 }
 
 int search_csect_name(char *csect_name)

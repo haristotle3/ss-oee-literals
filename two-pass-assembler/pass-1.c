@@ -22,6 +22,11 @@ int main()
     init_symtab();
     int program_length = passOne(input_file, intermediate_file);
 
+    if (program_length == ERROR_VALUE)
+        printf("Assembly failed.\n");
+    else
+        printf("Success!\n");
+
     fclose(input_file);
     fclose(intermediate_file);
 
@@ -133,7 +138,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
 void init_symtab()
 {
     // Erases contents of SYMTAB if it exists, else creates anew.
-    FILE* symbol_table = fopen("SYMTAB.txt", "w");
+    FILE *symbol_table = fopen("SYMTAB.txt", "w");
     fclose(symbol_table);
 
     return;
