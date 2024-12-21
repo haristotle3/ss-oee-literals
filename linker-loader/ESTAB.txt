@@ -1,9 +1,0 @@
-PROGA               4000      63        
-          LISTA     4040                
-          ENDA      4054                
-PROGB               4063      7f        
-          LISTB     40c3                
-          ENDB      40d3                
-PROGC               40e2      51        
-          LISTC     4112                
-          ENDC      4124                
