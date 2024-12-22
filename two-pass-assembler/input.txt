@@ -9,7 +9,7 @@ ____    JEQ     ENDFIL
 ____    +JSUB   WRREC
 ____    J       CLOOP
 ENDFIL  LDA     =C'EOF'
-____    LDA     =C'ABC'
+____    LDA     =C'ABCD'
 ____    LDA     =C'ABC'
 ____    LDA     =C'ABC'
 ____    STA     BUFFER

@@ -249,7 +249,6 @@ void print_literals_to_intermediate_file(FILE *intermediate_file)
     for (int i = LITTAB.not_printed_index; i < LITTAB.current_size; i++)
     {
         littab_element literal = LITTAB.table[i];
-        printf("LITADDR: %x\n", literal.address);
         fprintf(intermediate_file, "%04x%10s%10s%10s\n", literal.address, "*", literal.symbol, EMPTY);
         LITTAB.not_printed_index++;
     }
