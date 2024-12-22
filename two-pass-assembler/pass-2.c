@@ -5,7 +5,6 @@
 #include "utils.h"
 
 int passTwo(FILE *, FILE *, FILE *);
-void print_littab_2();
 
 unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
@@ -19,7 +18,7 @@ void init_pc_file();
 
 void init_littab_for_pass_2();
 int literal_search(char *);
-int literal_value(char *);
+int literal_address(char *);
 
 FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
@@ -44,7 +43,7 @@ int main()
     if (passTwo(input_file, object_program, assembly_listing) == ERROR_VALUE)
         printf("Assembly failed.\n");
     else
-        printf("Success!\n");
+        printf("Pass 2 of 2 of two completed successfully.\n");
 
     fclose(input_file);
     fclose(object_program);
@@ -55,7 +54,6 @@ int main()
 
 int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 {
-
     char program_name[MAX_TOKEN_LENGTH];
     int start_address;
     int length;
@@ -106,7 +104,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                 if (opcode_instruction_format(mnemonic) != 2 && symbol_search(operand))
                     symbol_address = symbol_value(operand);
                 else if (opcode_instruction_format(mnemonic) != 2 && literal_search(operand) != ERROR_VALUE)
-                    symbol_address = literal_value(operand);
+                    symbol_address = literal_address(operand);
                 else if (opcode_instruction_format(mnemonic) != 2)
                 {
                     printf("ERROR: %s doesn't exist in SYMTAB.\n", operand);
@@ -168,7 +166,9 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         fprintf(temp_text_record, "%0*llx", 2 * obj_code_length, assembled_object_code);
 
         if (strcmp(mnemonic, "END") != 0)
-            fprintf(assembly_listing, "%04x%10s%10s%10s%14llx\n", location, label, mnemonic, operand, assembled_object_code);
+        {
+            fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * obj_code_length, assembled_object_code);
+        }
         else
             fprintf(assembly_listing, "%04s%10s%10s%10s\n", EMPTY, label, mnemonic, EMPTY);
     }
@@ -192,8 +192,6 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     // Refer README.md
     fprintf(object_program, "E%06x\n", start_address);
     fclose(PROGRAM_COUNTER_FILE);
-
-    printf("Pass 2 of 2 of two completed successfully.\n");
 
     return 1;
 }
@@ -397,7 +395,7 @@ int literal_search(char *operand)
     return ERROR_VALUE;
 }
 
-int literal_value(char *operand)
+int literal_address(char *operand)
 {
-    return LITTAB.table[literal_search(operand)].value;
+    return LITTAB.table[literal_search(operand)].address;
 }

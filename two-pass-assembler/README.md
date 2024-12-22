@@ -39,3 +39,6 @@ There is a Linux-specific issue because the math library (libm) isn't linked by 
 
 Pass 1 produces `intermediate.txt`, `SYMTAB.txt` and `program_length.txt` as outputs.
 Pass 2 produces `object_program.txt` and `program_listing.txt` as outputs.
+
+To remove all output files run the command:
+`rm -rf intermediate.txt object_program.txt littab.txt littab_length.txt program_length.txt program_listing.txt SYMTAB.txt pass-1.exe pass-2.exe`

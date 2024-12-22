@@ -37,7 +37,7 @@ int main()
     if (program_length == ERROR_VALUE)
         printf("Assembly failed.\n");
     else
-        printf("Success!\n");
+        printf("Pass 1 of 2 of two completed successfully.\n");
 
     fclose(input_file);
     fclose(intermediate_file);
@@ -180,7 +180,6 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     print_literals_to_intermediate_file(intermediate_file);
 
     print_littab();
-    printf("Pass 1 of 2 of two completed successfully.\n");
 
     return program_length;
 }

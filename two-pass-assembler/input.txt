@@ -52,8 +52,8 @@ ____    LDT     LENGTH
 WLOOP   TD      =X'05'
 ____    JEQ     WLOOP
 ____    LDCH    BUFFER,X
-____    WD      OUTPUT
+____    WD      =X'05'
 ____    TIXR    T 
-____    JLT     =X'05'
+____    JLT     WLOOP
 ____    RSUB    ____
 ____    END     START
