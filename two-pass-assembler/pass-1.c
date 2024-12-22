@@ -83,7 +83,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         LOCCTR = START;
 
         // First line doesn't require a location.
-        fprintf(intermediate_file, "%s\t%s\t%x\n", label, mnemonic, start_address);
+        fprintf(intermediate_file, "%10s\t%10s\t%10x", label, mnemonic, start_address);
 
         // read next input line
         fscanf(input_file, "%s\t%s\t%s", label, mnemonic, operand);
@@ -105,11 +105,11 @@ int passOne(FILE *input_file, FILE *intermediate_file)
 
         if (strcmp(mnemonic, "LTORG") == 0)
         {
-            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
+            fprintf(intermediate_file, "%010x\t%10s\t%10s\t%10s\n", LOCCTR, label, mnemonic, operand);
             print_literals_to_intermediate_file(intermediate_file);
         }
         else
-            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
+            fprintf(intermediate_file, "%010x\t%10s\t%10s\t%10s\n", LOCCTR, label, mnemonic, operand);
 
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
@@ -190,7 +190,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     }
 
     int program_length = LOCCTR - START;
-    fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, EMPTY, "END", EMPTY);
+    fprintf(intermediate_file, "%010x\t%10s\t%10s\t%10s\n", 0000, EMPTY, "END", EMPTY);
     assign_addresses_to_literals(LOCCTR);
     print_literals_to_intermediate_file(intermediate_file);
 
@@ -244,7 +244,7 @@ void print_literals_to_intermediate_file(FILE *intermediate_file)
     for (int i = LITTAB.not_printed_index; i < LITTAB.current_size; i++)
     {
         littab_element literal = LITTAB.table[i];
-        fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", literal.address, "*", literal.symbol, EMPTY);
+        fprintf(intermediate_file, "%010x\t%10s\t%10s\t%10s\n", literal.address, "*", literal.symbol, EMPTY);
         LITTAB.not_printed_index++;
     }
 
@@ -290,13 +290,13 @@ void print_littab()
 {
     // creates littab.txt and prints the table.
     FILE *littab = fopen("littab.txt", "w");
-    fprintf(littab, "%10s%10s%10s%10s\n", "NAME|", "VALUE|", "LENGTH|", "ADDRESS|");
+    fprintf(littab, "%10s\t%10s\t%10s\t%10s\n", "NAME|", "VALUE|", "LENGTH|", "ADDRESS|");
     fprintf(littab, "----------------------------------------\n");
 
     for (int i = 0; i < LITTAB.current_size; i++)
     {
         littab_element literal = LITTAB.table[i];
-        fprintf(littab, "%10s%10x%10x%10x\n", literal.symbol, literal.value, literal.length, literal.address);
+        fprintf(littab, "%10s\t%10x\t%10x\t%10x\n", literal.symbol, literal.value, literal.length, literal.address);
     }
 
     fprintf(littab, "----------------------------------------\n");
