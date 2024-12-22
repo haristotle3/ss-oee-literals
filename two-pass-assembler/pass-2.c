@@ -341,17 +341,6 @@ unsigned long long int get_string_literal_hex(char operand_without_extraneous[])
     return obj_code;
 }
 
-void get_literal_value(char operand_without_extraneous[], char operand[])
-{
-    // strip the apostropes and the first character
-    // 'C' or 'X' and return the remaining string.
-    // We use strncpy.
-
-    strncpy(operand_without_extraneous, operand + 2, strlen(operand) - 3);
-    operand_without_extraneous[strlen(operand) - 3] = '\0';
-    return;
-}
-
 void update_text_record_length(FILE *temp_text_record, int text_record_length)
 {
     // Text record length is in bytes, two hex digits make a byte.

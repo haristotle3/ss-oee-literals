@@ -210,3 +210,25 @@ int get_immediate_value(char operand[])
 
     return symbol_value;
 }
+
+void get_literal_value(char operand_without_extraneous[], char operand[])
+{
+    // strip the apostropes and the first character
+    // 'C' or 'X' and return the remaining string.
+    // We use strncpy.
+
+    strncpy(operand_without_extraneous, operand + 2, strlen(operand) - 3);
+    operand_without_extraneous[strlen(operand) - 3] = '\0';
+    return;
+}
+
+int is_valid_constant(char *constant)
+{
+    // Checks for correctness of apostrophes in the constant
+    if ((constant[0] == 'C' || constant[0] == 'X') &&
+        (constant[1] == '\'') &&
+        (constant[strlen(constant) - 1] == '\''))
+        return 1;
+
+    return 0;
+}

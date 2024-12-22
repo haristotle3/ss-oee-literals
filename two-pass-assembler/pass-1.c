@@ -4,22 +4,29 @@
 #include "utils.h"
 
 void init_symtab();
-void init_littab(); // undefined
+void init_littab();
+void print_littab();
+void print_literals_to_intermediate_file(FILE *);
+void insert_literal_to_LITTAB(char *);
+void assign_addresses_to_literals(int);
+int literal_found(char *);
+int is_valid_literal(char *);
 int passOne(FILE *, FILE *);
 
 typedef struct
 {
     char symbol[MAX_TOKEN_LENGTH];
-    int value;
-    int length;
+    long int value; // is the object code of the symbol
+    int length;     // in bytes
     int address;
 } littab_element;
 
 typedef struct
 {
     littab_element table[MEMORY_SIZE];
-    int insert_index;     // index where literal will be inserted.
-    int unassigned_index; // index of the first literal which is not assigned an address.
+    int current_size;
+    int unassigned_index;  // index of the first literal which is not assigned an address.
+    int not_printed_index; // index of the first literal which has not been printed to intermediate.txt
 } littab;
 
 littab LITTAB;
@@ -38,6 +45,8 @@ int main()
     // LABEL, OPCODE and OPERAND
 
     init_symtab();
+    init_littab();
+
     int program_length = passOne(input_file, intermediate_file);
 
     if (program_length == ERROR_VALUE)
@@ -93,7 +102,13 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             continue;
         }
 
-        fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
+        if (strcmp(mnemonic, "LTORG") == 0)
+        {
+            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
+            print_literals_to_intermediate_file(intermediate_file);
+        }
+        else
+            fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
 
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
@@ -146,7 +161,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             continue;
         }
         else if (strcmp(mnemonic, "LTORG") == 0)
-            assign_addresses_to_literals(&LITTAB, LOCCTR);
+            assign_addresses_to_literals(LOCCTR);
         else
         {
             printf("ERROR: Invalid OPCODE (%s) at %x.\n", mnemonic, LOCCTR);
@@ -160,8 +175,8 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             {
                 // if literal found, do nothing
                 // else
-                if (!literal_found(&LITTAB, operand))
-                    insert_literal_to_LITTAB(&LITTAB, operand);
+                if (!literal_found(operand))
+                    insert_literal_to_LITTAB(operand);
             }
             else
             {
@@ -175,8 +190,10 @@ int passOne(FILE *input_file, FILE *intermediate_file)
 
     int program_length = LOCCTR - START;
     fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, EMPTY, "END", EMPTY);
-    assign_addresses_to_literals(&LITTAB, LOCCTR);
+    assign_addresses_to_literals(LOCCTR);
+    print_literals_to_intermediate_file(intermediate_file);
 
+    print_littab();
     printf("Pass 1 of 2 of two completed successfully.\n");
 
     return program_length;
@@ -188,5 +205,99 @@ void init_symtab()
     FILE *symbol_table = fopen("SYMTAB.txt", "w");
     fclose(symbol_table);
 
+    return;
+}
+
+void init_littab()
+{
+    LITTAB.current_size = 0;
+    LITTAB.unassigned_index = 0;
+    LITTAB.not_printed_index = 0;
+
+    return;
+}
+
+void insert_literal_to_LITTAB(char *literal)
+{
+    LITTAB.current_size++;
+
+    int insert_index = LITTAB.current_size - 1; // index where literal will be inserted.
+    char literal_as_operand[MAX_TOKEN_LENGTH];
+    char operand_without_extraneous[MAX_TOKEN_LENGTH];
+
+    strcpy(LITTAB.table[insert_index].symbol, literal);
+    // Copy literal without the '=' symbol
+    strncpy(literal_as_operand, literal + 1, strlen(literal));
+    get_literal_value(operand_without_extraneous, literal_as_operand);
+
+    LITTAB.table[insert_index].value = strtol(operand_without_extraneous, NULL, 16);
+    LITTAB.table[insert_index].length = (int)ceil(log2(LITTAB.table[insert_index].value) / 4.0 / 2.0);
+
+    // Address is unassigned.
+
+    return;
+}
+
+void print_literals_to_intermediate_file(FILE *intermediate_file)
+{
+    for (int i = LITTAB.not_printed_index; i < LITTAB.current_size; i++)
+    {
+        littab_element literal = LITTAB.table[i];
+        fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", literal.address, "*", literal.symbol, EMPTY);
+        LITTAB.not_printed_index++;
+    }
+
+    return;
+}
+
+void assign_addresses_to_literals(int LOCCTR)
+{
+    for (int i = LITTAB.unassigned_index; i < LITTAB.current_size; i++)
+    {
+        LITTAB.table[i].address = LOCCTR;
+        LOCCTR += LITTAB.table[i].length;
+        LITTAB.unassigned_index++;
+    }
+}
+
+int literal_found(char *operand)
+{
+    // simple linear search
+    for (int i = 0; i < LITTAB.current_size; i++)
+    {
+        if (strcmp(operand, LITTAB.table[i].symbol) == 0)
+            return 1;
+    }
+
+    return 0;
+}
+
+int is_valid_literal(char *operand)
+{
+    // checks whether the operand is in the format =C'value' or not
+    // Checks apostrophes are correct or not.
+
+    if ((operand[1] == 'C' || operand[1] == 'X') &&
+        (operand[2] == '\'') &&
+        (operand[strlen(operand) - 1] == '\''))
+        return 1;
+
+    return 0;
+}
+
+void print_littab()
+{
+    // creates littab.txt and prints the table.
+    FILE *littab = fopen("littab.txt", "w");
+    fprintf(littab, "%10s%10s%10s%10s\n", "NAME|", "VALUE|", "LENGTH|", "ADDRESS|");
+    fprintf(littab, "----------------------------------------\n");
+
+    for (int i = 0; i < LITTAB.current_size; i++)
+    {
+        littab_element literal = LITTAB.table[i];
+        fprintf(littab, "%10s%10x%10x%10x\n", literal.symbol, literal.value, literal.length, literal.address);
+    }
+
+    fprintf(littab, "----------------------------------------\n");
     return;
 }
