@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> // for atoi()
 #include <string.h> // for strcmp()
+#include <math.h>
 #include "utils.h"
 
 void init_symtab();
