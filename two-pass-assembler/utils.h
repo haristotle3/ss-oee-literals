@@ -12,6 +12,8 @@ int symbol_search(char *);
 int symbol_value(char *);
 void insert_symbol_to_SYMTAB(char *, int);
 int is_immediate_number(char *);
+int is_valid_constant(char *); // undefined
+int is_valid_literal(char *);  // undefined
 int get_immediate_value(char *);
 
 int opcode_search(char *);

@@ -4,6 +4,7 @@
 #include "utils.h"
 
 void init_symtab();
+void init_littab(); // undefined
 int passOne(FILE *, FILE *);
 
 typedef struct
@@ -14,7 +15,14 @@ typedef struct
     int address;
 } littab_element;
 
-littab_element LITTAB[MEMORY_SIZE];
+typedef struct
+{
+    littab_element table[MEMORY_SIZE];
+    int insert_index;     // index where literal will be inserted.
+    int unassigned_index; // index of the first literal which is not assigned an address.
+} littab;
+
+littab LITTAB;
 
 int main()
 {
@@ -86,6 +94,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         }
 
         fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", LOCCTR, label, mnemonic, operand);
+
         // If there is a symbol in the LABEL field
         if (strcmp(label, EMPTY) != 0)
         {
@@ -118,20 +127,46 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             LOCCTR += (atoi(operand));
         else if (strcmp(mnemonic, "BYTE") == 0)
         {
-            if (operand[0] == 'X')
-                LOCCTR++;
-            else if (operand[0] == 'C')
-                LOCCTR += strlen(operand) - 3; // Subrtact 1 each for the character C, and the two quote marks.
+            if (is_valid_constant(operand))
+            {
+                if (operand[0] == 'X')
+                    LOCCTR++;
+                else if (operand[0] == 'C')
+                    LOCCTR += strlen(operand) - 3; // Subrtact 1 each for the character C, and the two quote marks.
+            }
+            else
+            {
+                printf("ERROR: Invalid constant (%s) at %x.\n", operand, LOCCTR);
+                return ERROR_VALUE;
+            }
         }
         else if (strcmp(mnemonic, "BASE") == 0)
         {
             fscanf(input_file, "%s\t%s\t%s\n", label, mnemonic, operand);
             continue;
         }
+        else if (strcmp(mnemonic, "LTORG") == 0)
+            assign_addresses_to_literals(&LITTAB, LOCCTR);
         else
         {
             printf("ERROR: Invalid OPCODE (%s) at %x.\n", mnemonic, LOCCTR);
             return ERROR_VALUE;
+        }
+
+        // Handle literals.
+        if (operand[0] == '=') // Literal is defined by a string starting with '=';
+        {
+            if (is_valid_literal(operand))
+            {
+                // if literal found, do nothing
+                // else
+                if (!literal_found(&LITTAB, operand))
+                    insert_literal_to_LITTAB(&LITTAB, operand);
+            }
+            else
+            {
+                printf("Invalid literal (%s) at %x", operand, LOCCTR);
+            }
         }
 
         // Read next line
@@ -139,7 +174,9 @@ int passOne(FILE *input_file, FILE *intermediate_file)
     }
 
     int program_length = LOCCTR - START;
-    fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, "****", "END", "****");
+    fprintf(intermediate_file, "%04x\t%s\t%s\t%s\n", 0000, EMPTY, "END", EMPTY);
+    assign_addresses_to_literals(&LITTAB, LOCCTR);
+
     printf("Pass 1 of 2 of two completed successfully.\n");
 
     return program_length;
