@@ -2,6 +2,7 @@
 #define _UTILS_H
 #endif
 
+#define MEMORY_SIZE 16834
 #define MAX_TOKEN_LENGTH 25
 #define EMPTY "____"
 #define ERROR_VALUE -1

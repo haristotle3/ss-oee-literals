@@ -12,9 +12,9 @@ typedef struct
     int value;
     int length;
     int address;
-} littab;
+} littab_element;
 
-littab LITTAB;
+littab_element LITTAB[MEMORY_SIZE];
 
 int main()
 {
