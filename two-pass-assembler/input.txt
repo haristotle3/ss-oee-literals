@@ -10,9 +10,13 @@ ____    +JSUB   WRREC
 ____    J       CLOOP
 ENDFIL  LDA     =C'EOF'
 ____    LDA     =C'ABC'
+____    LDA     =C'ABC'
+____    LDA     =C'ABC'
 ____    STA     BUFFER
 ____    LDA     #3
 ____    STA     LENGTH
+____    STA     =X'FF'
+____    STA     =X'FF'
 ____    STA     =X'FF'
 ____    +JSUB   WRREC
 ____    J       @RETADR

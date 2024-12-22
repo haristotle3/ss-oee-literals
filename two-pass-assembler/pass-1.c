@@ -5,13 +5,13 @@
 #include "utils.h"
 
 void init_symtab();
-void init_littab();
-void print_littab();
-void print_literals_to_intermediate_file(FILE *);
-void insert_literal_to_LITTAB(char *);
-void assign_addresses_to_literals(int);
-int literal_found(char *);
-int is_valid_literal(char *);
+void init_littab();                               // no need to test
+void print_littab();                              // tested
+void print_literals_to_intermediate_file(FILE *); // tested
+void insert_literal_to_LITTAB(char *);            // tested
+void assign_addresses_to_literals(int);           // tested
+int literal_found(char *);                        // tested
+int is_valid_literal(char *);                     // tested
 int passOne(FILE *, FILE *);
 
 typedef struct
@@ -104,10 +104,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         }
 
         if (strcmp(mnemonic, "LTORG") == 0)
-        {
             fprintf(intermediate_file, "%04x%10s%10s%10s\n", LOCCTR, label, mnemonic, operand);
-            print_literals_to_intermediate_file(intermediate_file);
-        }
         else
             fprintf(intermediate_file, "%04x%10s%10s%10s\n", LOCCTR, label, mnemonic, operand);
 
@@ -162,7 +159,10 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             continue;
         }
         else if (strcmp(mnemonic, "LTORG") == 0)
+        {
             assign_addresses_to_literals(LOCCTR);
+            print_literals_to_intermediate_file(intermediate_file);
+        }
         else
         {
             printf("ERROR: Invalid OPCODE (%s) at %x.\n", mnemonic, LOCCTR);
@@ -249,6 +249,7 @@ void print_literals_to_intermediate_file(FILE *intermediate_file)
     for (int i = LITTAB.not_printed_index; i < LITTAB.current_size; i++)
     {
         littab_element literal = LITTAB.table[i];
+        printf("LITADDR: %x\n", literal.address);
         fprintf(intermediate_file, "%04x%10s%10s%10s\n", literal.address, "*", literal.symbol, EMPTY);
         LITTAB.not_printed_index++;
     }
@@ -291,7 +292,7 @@ int is_valid_literal(char *operand)
     return 0;
 }
 
-void print_littab() // tested
+void print_littab()
 {
     // creates littab.txt and prints the table.
     FILE *littab = fopen("littab.txt", "w");
