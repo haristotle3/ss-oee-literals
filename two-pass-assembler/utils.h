@@ -6,6 +6,7 @@
 #define MAX_TOKEN_LENGTH 25
 #define MAX_BUF 256
 #define EMPTY "____"
+#define LITERAL_POOL "*"
 #define ERROR_VALUE -1
 #define NUM_REGISTERS 7
 

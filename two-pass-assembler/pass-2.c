@@ -5,7 +5,7 @@
 #include "utils.h"
 
 int passTwo(FILE *, FILE *, FILE *);
-void print_littab_2(); // Tested
+void print_littab_2();
 
 unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
@@ -18,6 +18,8 @@ int increment_pc();
 void init_pc_file();
 
 void init_littab_for_pass_2();
+int literal_search(char *);
+int literal_value(char *);
 
 FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
@@ -38,18 +40,17 @@ int main()
     // LABEL, OPCODE and OPERAND
 
     init_littab_for_pass_2();
-    print_littab_2();
 
-    // if (passTwo(input_file, object_program, assembly_listing) == ERROR_VALUE)
-    //     printf("Assembly failed.\n");
-    // else
-    //     printf("Success!\n");
+    if (passTwo(input_file, object_program, assembly_listing) == ERROR_VALUE)
+        printf("Assembly failed.\n");
+    else
+        printf("Success!\n");
 
-    // fclose(input_file);
-    // fclose(object_program);
-    // fclose(assembly_listing);
+    fclose(input_file);
+    fclose(object_program);
+    fclose(assembly_listing);
 
-    // return 0;
+    return 0;
 }
 
 int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
@@ -104,6 +105,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                 // If instruction is format 2, then operand will be registers.
                 if (opcode_instruction_format(mnemonic) != 2 && symbol_search(operand))
                     symbol_address = symbol_value(operand);
+                else if (opcode_instruction_format(mnemonic) != 2 && literal_search(operand) != ERROR_VALUE)
+                    symbol_address = literal_value(operand);
                 else if (opcode_instruction_format(mnemonic) != 2)
                 {
                     printf("ERROR: %s doesn't exist in SYMTAB.\n", operand);
@@ -136,7 +139,10 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             BASE = symbol_value(operand);
             continue;
         }
-        else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "RESB") == 0)
+        else if (strcmp(mnemonic, "RESW") == 0 ||
+                 strcmp(mnemonic, "RESB") == 0 ||
+                 strcmp(mnemonic, "LTORG") ||
+                 strcmp(label, LITERAL_POOL) == 0)
         {
             fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
             continue;
@@ -344,4 +350,54 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
     fseek(temp_text_record, 0, SEEK_END);
 
     return;
+}
+
+void init_littab_for_pass_2()
+{
+    FILE *littab_file = fopen("littab.txt", "r");
+    FILE *littab_length_file = fopen("littab_length.txt", "r");
+
+    int littab_length;
+    fscanf(littab_length_file, "%d", &littab_length);
+
+    LITTAB.current_size = littab_length;
+    LITTAB.unassigned_index = littab_length;
+    LITTAB.not_printed_index = littab_length;
+
+    char symbol_name[MAX_TOKEN_LENGTH];
+    int value;
+    int length;
+    int address;
+
+    char buffer[MAX_BUF];
+    fgets(buffer, MAX_BUF, littab_file); // Read headers
+    fgets(buffer, MAX_BUF, littab_file); // Read horizontal rule (-------)
+
+    for (int i = 0; i < littab_length; i++)
+    {
+        littab_element *literal = &LITTAB.table[i];
+        fscanf(littab_file, "%s\t%x\t%x\t%x", &literal->symbol, &literal->value, &literal->length, &literal->address);
+    }
+
+    fclose(littab_length_file);
+    fclose(littab_file);
+
+    return;
+}
+
+int literal_search(char *operand)
+{
+    // simple linear search, but
+    for (int i = 0; i < LITTAB.current_size; i++)
+    {
+        if (strcmp(operand, LITTAB.table[i].symbol) == 0)
+            return i;
+    }
+
+    return ERROR_VALUE;
+}
+
+int literal_value(char *operand)
+{
+    return LITTAB.table[literal_search(operand)].value;
 }
