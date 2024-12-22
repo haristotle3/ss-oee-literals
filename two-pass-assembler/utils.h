@@ -3,7 +3,7 @@
 #endif
 
 #define MAX_TOKEN_LENGTH 25
-#define EMPTY "****"
+#define EMPTY "____"
 #define ERROR_VALUE -1
 #define NUM_REGISTERS 7
 

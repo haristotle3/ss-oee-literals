@@ -6,6 +6,16 @@
 void init_symtab();
 int passOne(FILE *, FILE *);
 
+typedef struct
+{
+    char symbol[MAX_TOKEN_LENGTH];
+    int value;
+    int length;
+    int address;
+} littab;
+
+littab LITTAB;
+
 int main()
 {
     // input files
