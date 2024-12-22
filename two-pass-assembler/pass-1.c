@@ -231,8 +231,12 @@ void insert_literal_to_LITTAB(char *literal)
     strncpy(literal_as_operand, literal + 1, strlen(literal));
     get_literal_value(operand_without_extraneous, literal_as_operand);
 
-    LITTAB.table[insert_index].value = strtol(operand_without_extraneous, NULL, 16);
-    LITTAB.table[insert_index].length = (int)ceil(log2(LITTAB.table[insert_index].value) / 4.0 / 2.0);
+    if (literal[1] == 'X')
+        LITTAB.table[insert_index].value = strtol(operand_without_extraneous, NULL, 16);
+    else if (literal[1] == 'C')
+        LITTAB.table[insert_index].value = get_string_literal_hex(operand_without_extraneous);
+
+    LITTAB.table[insert_index].length = get_object_code_length(LITTAB.table[insert_index].value);
 
     // Address is unassigned.
 

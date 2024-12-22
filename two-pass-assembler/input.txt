@@ -9,9 +9,11 @@ ____    JEQ     ENDFIL
 ____    +JSUB   WRREC
 ____    J       CLOOP
 ENDFIL  LDA     =C'EOF'
+____    LDA     =C'ABC'
 ____    STA     BUFFER
 ____    LDA     #3
 ____    STA     LENGTH
+____    STA     =X'FF'
 ____    +JSUB   WRREC
 ____    J       @RETADR
 ____    LTORG   ____
@@ -33,6 +35,7 @@ ____    RD      INPUT
 ____    COMPR   A,S
 ____    JEQ     EXIT
 ____    STCH    BUFFER,X
+____    JEQ     =C'XYZ'
 ____    TIXR    T
 ____    JLT     RLOOP
 EXIT    STX     LENGTH

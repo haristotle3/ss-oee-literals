@@ -310,37 +310,6 @@ int increment_pc()
         return 0;
 }
 
-int get_object_code_length(unsigned long long int assembled_object_code)
-{
-    // get the length of the object code,
-    // just take log to the base 16, which gives the number of hexadecimal digits.
-    // then divide by 2, since each hexadecimal digit represents a nibble,
-    // therefore 2 nibbles make a byte;
-    // then take the ceiling function to get length.
-    // There will always be an even number of hexadecimal digits.
-    // Therefore, when divided by 2, results will be have odd and even values,
-    // which is exactly what we expect
-
-    // By change of base formula,
-    // log16(x) = log2(x)/log2(16) = log2(x) / 4
-
-    return (int)ceil(log2(assembled_object_code) / 4.0 / 2.0);
-}
-
-unsigned long long int get_string_literal_hex(char operand_without_extraneous[])
-{
-    // convert string to ascii value string (as an unsigned long int) and return.
-    unsigned long long int obj_code = 0;
-
-    for (int i = 0; i < strlen(operand_without_extraneous); i++)
-    {
-        obj_code <<= 8;
-        obj_code += operand_without_extraneous[i];
-    }
-
-    return obj_code;
-}
-
 void update_text_record_length(FILE *temp_text_record, int text_record_length)
 {
     // Text record length is in bytes, two hex digits make a byte.

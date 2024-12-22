@@ -16,6 +16,8 @@ int is_valid_constant(char *); // undefined
 
 int get_immediate_value(char *);
 void get_literal_value(char *, char *);
+unsigned long long int get_string_literal_hex(char *);
+int get_object_code_length(unsigned long long int);
 
 int opcode_search(char *);
 int opcode_instruction_format(char *);
