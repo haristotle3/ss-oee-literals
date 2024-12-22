@@ -282,7 +282,8 @@ int is_valid_literal(char *operand)
 {
     // checks whether the operand is in the format =C'value' or not
     // Checks apostrophes are correct or not.
-
+    // if (operand[1] == '*' && strlen(operand) == 1)
+    //     return 1;
     if ((operand[1] == 'C' || operand[1] == 'X') &&
         (operand[2] == '\'') &&
         (operand[strlen(operand) - 1] == '\''))

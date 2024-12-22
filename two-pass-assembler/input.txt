@@ -11,7 +11,6 @@ ____    J       CLOOP
 ENDFIL  LDA     =C'EOF'
 ____    LDA     =C'ABCD'
 ____    LDA     =C'ABC'
-____    LDA     =C'ABC'
 ____    STA     BUFFER
 ____    LDA     #3
 ____    STA     LENGTH
