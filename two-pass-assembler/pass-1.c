@@ -181,7 +181,8 @@ int passOne(FILE *input_file, FILE *intermediate_file)
             }
             else
             {
-                printf("Invalid literal (%s) at %x", operand, LOCCTR);
+                printf("Invalid literal (%s) at %x.\n", operand, LOCCTR);
+                return ERROR_VALUE;
             }
         }
 
@@ -290,7 +291,7 @@ int is_valid_literal(char *operand)
     return 0;
 }
 
-void print_littab()
+void print_littab() // tested
 {
     // creates littab.txt and prints the table.
     FILE *littab = fopen("littab.txt", "w");
