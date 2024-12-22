@@ -5,6 +5,7 @@
 #include "utils.h"
 
 int passTwo(FILE *, FILE *, FILE *);
+void print_littab_2(); // Tested
 
 unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
@@ -16,9 +17,13 @@ void update_text_record_length(FILE *, int);
 int increment_pc();
 void init_pc_file();
 
+void init_littab_for_pass_2();
+
 FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
 int BASE = 0;
+
+littab LITTAB;
 
 int main()
 {
@@ -32,16 +37,19 @@ int main()
     // The program is written in a fixed format with fields
     // LABEL, OPCODE and OPERAND
 
-    if (passTwo(input_file, object_program, assembly_listing) == ERROR_VALUE)
-        printf("Assembly failed.\n");
-    else
-        printf("Success!\n");
+    init_littab_for_pass_2();
+    print_littab_2();
 
-    fclose(input_file);
-    fclose(object_program);
-    fclose(assembly_listing);
+    // if (passTwo(input_file, object_program, assembly_listing) == ERROR_VALUE)
+    //     printf("Assembly failed.\n");
+    // else
+    //     printf("Success!\n");
 
-    return 0;
+    // fclose(input_file);
+    // fclose(object_program);
+    // fclose(assembly_listing);
+
+    // return 0;
 }
 
 int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
@@ -59,7 +67,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     fscanf(input_file, "%s\t%s\t%x", program_name, mnemonic, &start_address);
 
     if (strcmp(mnemonic, "START") == 0)
-        fprintf(assembly_listing, "%4s\t%8s\t%8x\n", program_name, mnemonic, start_address);
+        fprintf(assembly_listing, "%14s%10s%10x\n", program_name, mnemonic, start_address);
     else
     {
         printf("ERROR: Assembler expects START opcode in line 1.\n");
@@ -130,7 +138,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
         else if (strcmp(mnemonic, "RESW") == 0 || strcmp(mnemonic, "RESB") == 0)
         {
-            fprintf(assembly_listing, "%04x\t%8s\t%8s\t%8s\n", location, label, mnemonic, operand);
+            fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
             continue;
         }
 
@@ -154,9 +162,9 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         fprintf(temp_text_record, "%0*llx", 2 * obj_code_length, assembled_object_code);
 
         if (strcmp(mnemonic, "END") != 0)
-            fprintf(assembly_listing, "%04x\t%8s\t%8s\t%8s\t%0*llx\n", location, label, mnemonic, operand, 2 * obj_code_length, assembled_object_code);
+            fprintf(assembly_listing, "%04x%10s%10s%10s%14llx\n", location, label, mnemonic, operand, assembled_object_code);
         else
-            fprintf(assembly_listing, "%4s\t%8s\t%8s\t%8s\n", "****", label, mnemonic, "****");
+            fprintf(assembly_listing, "%04s%10s%10s%10s\n", EMPTY, label, mnemonic, EMPTY);
     }
 
     fprintf(temp_text_record, "\n");

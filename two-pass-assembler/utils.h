@@ -4,9 +4,26 @@
 
 #define MEMORY_SIZE 16834
 #define MAX_TOKEN_LENGTH 25
+#define MAX_BUF 256
 #define EMPTY "____"
 #define ERROR_VALUE -1
 #define NUM_REGISTERS 7
+
+typedef struct
+{
+    char symbol[MAX_TOKEN_LENGTH];
+    long int value; // is the object code of the symbol
+    int length;     // in bytes
+    int address;
+} littab_element;
+
+typedef struct
+{
+    littab_element table[MEMORY_SIZE];
+    int current_size;
+    int unassigned_index;  // index of the first literal which is not assigned an address.
+    int not_printed_index; // index of the first literal which has not been printed to intermediate.txt
+} littab;
 
 int symbol_search(char *);
 int symbol_value(char *);

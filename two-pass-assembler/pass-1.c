@@ -5,30 +5,14 @@
 #include "utils.h"
 
 void init_symtab();
-void init_littab();                               // no need to test
-void print_littab();                              // tested
-void print_literals_to_intermediate_file(FILE *); // tested
-void insert_literal_to_LITTAB(char *);            // tested
-void assign_addresses_to_literals(int);           // tested
-int literal_found(char *);                        // tested
-int is_valid_literal(char *);                     // tested
+void init_littab_for_pass_1();
+void print_littab();
+void print_literals_to_intermediate_file(FILE *);
+void insert_literal_to_LITTAB(char *);
+void assign_addresses_to_literals(int);
+int literal_found(char *);
+int is_valid_literal(char *);
 int passOne(FILE *, FILE *);
-
-typedef struct
-{
-    char symbol[MAX_TOKEN_LENGTH];
-    long int value; // is the object code of the symbol
-    int length;     // in bytes
-    int address;
-} littab_element;
-
-typedef struct
-{
-    littab_element table[MEMORY_SIZE];
-    int current_size;
-    int unassigned_index;  // index of the first literal which is not assigned an address.
-    int not_printed_index; // index of the first literal which has not been printed to intermediate.txt
-} littab;
 
 littab LITTAB;
 
@@ -46,7 +30,7 @@ int main()
     // LABEL, OPCODE and OPERAND
 
     init_symtab();
-    init_littab();
+    init_littab_for_pass_1();
 
     int program_length = passOne(input_file, intermediate_file);
 
@@ -210,7 +194,7 @@ void init_symtab()
     return;
 }
 
-void init_littab()
+void init_littab_for_pass_1()
 {
     LITTAB.current_size = 0;
     LITTAB.unassigned_index = 0;
@@ -295,7 +279,9 @@ int is_valid_literal(char *operand)
 void print_littab()
 {
     // creates littab.txt and prints the table.
+    // also creates and littab_length.txt and prints the length.
     FILE *littab = fopen("littab.txt", "w");
+    FILE *littab_length = fopen("littab_length.txt", "w");
     fprintf(littab, "%10s%10s%10s%10s\n", "NAME|", "VALUE|", "LENGTH|", "ADDRESS|");
     fprintf(littab, "----------------------------------------\n");
 
@@ -306,5 +292,9 @@ void print_littab()
     }
 
     fprintf(littab, "----------------------------------------\n");
+    fprintf(littab_length, "%d", LITTAB.current_size);
+
+    fclose(littab);
+    fclose(littab_length);
     return;
 }
