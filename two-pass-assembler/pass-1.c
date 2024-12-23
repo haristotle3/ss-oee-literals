@@ -9,7 +9,7 @@ void init_littab_for_pass_1();
 void print_littab();
 void print_literals_to_intermediate_file(FILE *);
 void insert_literal_to_LITTAB(char *);
-void assign_addresses_to_literals(int);
+void assign_addresses_to_literals(int *);
 int literal_found(char *);
 int is_valid_literal(char *);
 int passOne(FILE *, FILE *);
@@ -144,7 +144,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         }
         else if (strcmp(mnemonic, "LTORG") == 0)
         {
-            assign_addresses_to_literals(LOCCTR);
+            assign_addresses_to_literals(&LOCCTR);
             print_literals_to_intermediate_file(intermediate_file);
         }
         else
@@ -176,7 +176,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
 
     int program_length = LOCCTR - START;
     fprintf(intermediate_file, "%04x%10s%10s%10s\n", 0000, EMPTY, "END", EMPTY);
-    assign_addresses_to_literals(LOCCTR);
+    assign_addresses_to_literals(&LOCCTR);
     print_literals_to_intermediate_file(intermediate_file);
 
     print_littab();
@@ -239,12 +239,12 @@ void print_literals_to_intermediate_file(FILE *intermediate_file)
     return;
 }
 
-void assign_addresses_to_literals(int LOCCTR)
+void assign_addresses_to_literals(int *LOCCTR)
 {
     for (int i = LITTAB.unassigned_index; i < LITTAB.current_size; i++)
     {
-        LITTAB.table[i].address = LOCCTR;
-        LOCCTR += LITTAB.table[i].length;
+        LITTAB.table[i].address = *LOCCTR;
+        *LOCCTR += LITTAB.table[i].length;
         LITTAB.unassigned_index++;
     }
 }
