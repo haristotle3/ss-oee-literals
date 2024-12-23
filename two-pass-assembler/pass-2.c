@@ -54,6 +54,7 @@ int main()
 
 int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 {
+    int resb_resw_previously = 0; // set to 1, if the previous OPCODE was RESB or RESB
     char program_name[MAX_TOKEN_LENGTH];
     int start_address;
     int length;
@@ -139,10 +140,27 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
         else if (strcmp(mnemonic, "RESW") == 0 ||
                  strcmp(mnemonic, "RESB") == 0 ||
-                 strcmp(mnemonic, "LTORG") ||
+                 strcmp(mnemonic, "LTORG") == 0 ||
                  strcmp(label, LITERAL_POOL) == 0)
         {
             fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
+            // Break into a new text record,
+            // but don't create another if the previous instruction
+            // was also an assembler directive.
+
+            if (!resb_resw_previously)
+            {
+                int obj_code_length = get_object_code_length(assembled_object_code);
+                fprintf(temp_text_record, "\n");
+                update_text_record_length(temp_text_record, text_record_length);
+
+                // Start new text_record.
+                text_record_length = obj_code_length;
+                text_record_start_address = location;
+                fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
+
+                resb_resw_previously = 1;
+            }
             continue;
         }
 
@@ -166,11 +184,11 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         fprintf(temp_text_record, "%0*llx", 2 * obj_code_length, assembled_object_code);
 
         if (strcmp(mnemonic, "END") != 0)
-        {
             fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * obj_code_length, assembled_object_code);
-        }
         else
             fprintf(assembly_listing, "%04s%10s%10s%10s\n", EMPTY, label, mnemonic, EMPTY);
+
+        resb_resw_previously = 0;
     }
 
     fprintf(temp_text_record, "\n");
