@@ -6,8 +6,8 @@
 
 int passTwo(FILE *, FILE *, FILE *);
 
-unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
+unsigned long long int assemble_instruction(char *, char *, int);
 void get_literal_value(char *, char *);
 unsigned long long int get_string_literal_hex(char *);
 int get_object_code_length(unsigned long long int);
@@ -165,10 +165,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
 
         if (resb_resw_previously)
-        {
-            printf("UPTATABLE LOCATION: %x\n", location);
             update_text_record_start_address(temp_text_record, location, text_record_length);
-        }
 
         int obj_code_length = get_object_code_length(assembled_object_code);
         if (text_record_length + obj_code_length > 30) // 30 bytes take up 60 columns, which is maximum that one text record can hold.
@@ -426,7 +423,6 @@ int literal_address(char *operand)
 
 void update_text_record_start_address(FILE *temp_text_record, int text_record_start_address, int text_record_length)
 {
-    printf("ARGUMENT: %x\n", text_record_start_address);
     fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
     return;
 }
