@@ -6,8 +6,8 @@
 
 int passTwo(FILE *, FILE *, FILE *);
 
-unsigned long long int assemble_instruction(char *, char *, int);
 // hardest. Need to use some creativity.
+unsigned long long int assemble_instruction(char *, char *, int);
 void get_literal_value(char *, char *);
 unsigned long long int get_string_literal_hex(char *);
 int get_object_code_length(unsigned long long int);
