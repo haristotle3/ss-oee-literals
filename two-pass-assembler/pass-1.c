@@ -2,6 +2,7 @@
 #include <stdlib.h> // for atoi()
 #include <string.h> // for strcmp()
 #include <math.h>
+#include <windows.h>
 #include "utils.h"
 
 void init_symtab();
@@ -22,8 +23,10 @@ int main()
     FILE *input_file = fopen("input.txt", "r");
 
     // output files
-    FILE *intermediate_file = fopen("intermediate.txt", "w");
-    FILE *length = fopen("program_length.txt", "w");
+    CreateDirectory("pass-1-outputs", NULL);
+
+    FILE *intermediate_file = fopen("pass-1-outputs/intermediate.txt", "w");
+    FILE *length = fopen("pass-1-outputs/program_length.txt", "w");
 
     // Input file is an assembly program.
     // The program is written in a fixed format with fields
@@ -187,7 +190,7 @@ int passOne(FILE *input_file, FILE *intermediate_file)
 void init_symtab()
 {
     // Erases contents of SYMTAB if it exists, else creates anew.
-    FILE *symbol_table = fopen("SYMTAB.txt", "w");
+    FILE *symbol_table = fopen("pass-1-outputs/SYMTAB.txt", "w");
     fclose(symbol_table);
 
     return;
@@ -279,8 +282,8 @@ void print_littab()
 {
     // creates littab.txt and prints the table.
     // also creates and littab_length.txt and prints the length.
-    FILE *littab = fopen("littab.txt", "w");
-    FILE *littab_length = fopen("littab_length.txt", "w");
+    FILE *littab = fopen("pass-1-outputs/littab.txt", "w");
+    FILE *littab_length = fopen("pass-1-outputs/littab_length.txt", "w");
     fprintf(littab, "%10s%10s%10s%10s\n", "NAME|", "VALUE|", "LENGTH|", "ADDRESS|");
     fprintf(littab, "----------------------------------------\n");
 

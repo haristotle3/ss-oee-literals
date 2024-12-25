@@ -11,7 +11,7 @@ int symbol_search(char input_symbol[])
     // Returns 1 if found.
     // Also returns 1 if symbol is determined to be an immediate number.
 
-    FILE *symbol_table = fopen("SYMTAB.txt", "r");
+    FILE *symbol_table = fopen("pass-1-outputs/SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
 
     char symbol[MAX_TOKEN_LENGTH];
@@ -51,7 +51,7 @@ int symbol_value(char *input_symbol)
     // Returns the symbol address as assigned in (pass 1) if found
     // Returns the immediate value string, converted to numeric value.
 
-    FILE *symbol_table = fopen("SYMTAB.txt", "r");
+    FILE *symbol_table = fopen("pass-1-outputs/SYMTAB.txt", "r");
     char cmp_symbol[MAX_TOKEN_LENGTH];
 
     char symbol[MAX_TOKEN_LENGTH];
@@ -89,7 +89,7 @@ int symbol_value(char *input_symbol)
 
 void insert_symbol_to_SYMTAB(char symbol[], int location)
 {
-    FILE *symbol_table = fopen("SYMTAB.txt", "a");
+    FILE *symbol_table = fopen("pass-1-outputs/SYMTAB.txt", "a");
     fprintf(symbol_table, "%s\t%x\n", symbol, location);
     fclose(symbol_table);
 

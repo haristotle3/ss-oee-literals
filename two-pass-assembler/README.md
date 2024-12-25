@@ -40,4 +40,9 @@ Pass 1 produces `intermediate.txt`, `SYMTAB.txt` and `program_length.txt` as out
 Pass 2 produces `object_program.txt` and `program_listing.txt` as outputs.
 
 To remove all output files run the command:
-`rm -rf intermediate.txt object_program.txt littab.txt littab_length.txt program_length.txt program_listing.txt SYMTAB.txt pass-1.exe pass-2.exe`
+`rm -rf pass-1-outputs/*.* pass-2-outputs/*.* && rmdir pass-1-outputs pass-2-outputs`
+
+If the output directories do not exist, `rmdir` will show an error, obviously.
+
+To remove just the executable files run the command:
+`rm -rf pass-1.exe pass-2.exe`

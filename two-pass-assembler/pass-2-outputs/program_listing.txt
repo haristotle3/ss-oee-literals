@@ -1,0 +1,56 @@
+          COPY     START      1000
+1000     FIRST       STL    RETADR    172044
+1003      ____       LDB   #LENGTH    692044
+1006     CLOOP     +JSUB     RDREC    4b10204d
+100a      ____       LDA    LENGTH    03203d
+100d      ____      COMP        #0    290000
+1010      ____       JEQ    ENDFIL    332007
+1013      ____     +JSUB     WRREC    4b102077
+1017      ____         J     CLOOP    3f2fec
+101a    ENDFIL       LDA   =C'EOF'    03201f
+101d      ____       LDA  =C'ABCD'    03201f
+1020      ____       LDA   =C'ABC'    032020
+1023      ____       STA    BUFFER    0f2027
+1026      ____       LDA        #3    010003
+1029      ____       STA    LENGTH    0f201e
+102c      ____       STA    =X'FF'    0f2017
+102f      ____       STA    =X'FF'    0f2014
+1032      ____       STA    =X'FF'    0f2011
+1035      ____     +JSUB     WRREC    4b102077
+1039      ____         J   @RETADR    3e200b
+____      ____     LTORG      ____
+103c         *   =C'EOF'      ____    454f46
+103f         *  =C'ABCD'      ____    41424344
+1043         *   =C'ABC'      ____    414243
+1046         *    =X'FF'      ____    ff
+1047    RETADR      RESW         1
+104a    LENGTH      RESW         1
+104d    BUFFER      RESB      4096
+204d     RDREC     CLEAR         X    b410
+204f      ____     CLEAR         A    b400
+2051      ____     CLEAR         S    b440
+2053      ____      +LDT     #4096    75101000
+2057     RLOOP        TD     INPUT    e3201c
+205a      ____       JEQ     RLOOP    332ffa
+205d      ____        RD     INPUT    db2016
+2060      ____     COMPR       A,S    a004
+2062      ____       JEQ      EXIT    33200b
+2065      ____      STCH  BUFFER,X    57c003
+2068      ____       JEQ   =C'XYZ'    332025
+206b      ____      TIXR         T    b850
+206d      ____       JLT     RLOOP    3b2fe7
+2070      EXIT       STX    LENGTH    134000
+2073      ____      RSUB      ____    4f0000
+2076     INPUT      BYTE     X'F1'    f1
+2077     WRREC     CLEAR         X    b410
+2079      ____       LDT    LENGTH    774000
+207c     WLOOP        TD    =X'05'    e32014
+207f      ____       JEQ     WLOOP    332ffa
+2082      ____      LDCH  BUFFER,X    53c003
+2085      ____        WD    =X'05'    df200b
+2088      ____      TIXR         T    b850
+208a      ____       JLT     WLOOP    3b2fef
+208d      ____      RSUB      ____    4f0000
+____      ____       END      ____
+2090         *   =C'XYZ'      ____    58595a
+2093         *    =X'05'      ____    05
