@@ -11,7 +11,7 @@ unsigned long long int assemble_instruction(char *, char *, int);
 void get_literal_value(char *, char *);
 unsigned long long int get_string_literal_hex(char *);
 int get_object_code_length(unsigned long long int);
-void update_text_record_length(FILE *, int);
+void update_text_record_length(FILE *, int, int);
 void update_text_record_start_address(FILE *, int, int);
 
 int increment_pc();
@@ -56,6 +56,7 @@ int main()
 int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 {
     int resb_resw_previously = 0; // set to 1, if the previous OPCODE was RESB or RESB
+    int num_instructions_in_one_text_record = 0;
     char program_name[MAX_TOKEN_LENGTH];
     int start_address;
     int length;
@@ -86,7 +87,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     int text_record_length = 0;
     int text_record_start_address = start_address;
     FILE *temp_text_record = fopen("Temp_text_record.txt", "w");
-    fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
+    fprintf(temp_text_record, "%c %06x %02x", 'T', text_record_start_address, text_record_length);
     // Later we have to use fseek() and fputc() to replace 0 (text record length)
     // to appropriate value.
 
@@ -153,8 +154,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             {
                 int obj_code_length = get_object_code_length(assembled_object_code);
                 fprintf(temp_text_record, "\n");
-                update_text_record_length(temp_text_record, text_record_length);
-
+                update_text_record_length(temp_text_record, text_record_length, num_instructions_in_one_text_record);
+                num_instructions_in_one_text_record = 0;
                 // Start new text_record.
                 text_record_length = 0;
                 text_record_start_address = location;
@@ -171,12 +172,13 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         if (text_record_length + obj_code_length > 30) // 30 bytes take up 60 columns, which is maximum that one text record can hold.
         {
             fprintf(temp_text_record, "\n");
-            update_text_record_length(temp_text_record, text_record_length);
+            update_text_record_length(temp_text_record, text_record_length, num_instructions_in_one_text_record);
+            num_instructions_in_one_text_record = 0;
 
             // Start new text_record.
             text_record_length = obj_code_length;
             text_record_start_address = location;
-            fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
+            fprintf(temp_text_record, "%c %06x %02x", 'T', text_record_start_address, text_record_length);
         }
         else
             text_record_length += obj_code_length;
@@ -184,7 +186,8 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
         // Multiply by 2 to obj_code_length for leading zeroes.
-        fprintf(temp_text_record, "%0*llx", 2 * obj_code_length, assembled_object_code);
+        fprintf(temp_text_record, " %0*llx", 2 * obj_code_length, assembled_object_code);
+        num_instructions_in_one_text_record++;
 
         if (strcmp(mnemonic, "END") != 0)
             fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * obj_code_length, assembled_object_code);
@@ -195,7 +198,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
     }
 
     fprintf(temp_text_record, "\n");
-    update_text_record_length(temp_text_record, text_record_length);
+    update_text_record_length(temp_text_record, text_record_length, num_instructions_in_one_text_record);
 
     fclose(temp_text_record);
 
@@ -343,7 +346,7 @@ int increment_pc()
         return 0;
 }
 
-void update_text_record_length(FILE *temp_text_record, int text_record_length)
+void update_text_record_length(FILE *temp_text_record, int text_record_length, int num_instructions)
 {
     // Text record length is in bytes, two hex digits make a byte.
     // But each character stored in a file is takes up a byte.
@@ -362,7 +365,9 @@ void update_text_record_length(FILE *temp_text_record, int text_record_length)
     // Character from last (since 2 bytes is for text-record-length columns)
 
     // Therefore we have to index to -(60 + 2 + 2)th index.
-    fseek(temp_text_record, -2 * (text_record_length)-2 - 2, SEEK_CUR);
+    // Now that we have added whitespaces, we also need to add number of whitespaces
+    // i.e., number of instructions to our offset.
+    fseek(temp_text_record, -2 * (text_record_length)-2 - 2 - num_instructions, SEEK_CUR);
     fprintf(temp_text_record, "%02x", text_record_length);
 
     // Go back to the end of the file.
@@ -423,6 +428,6 @@ int literal_address(char *operand)
 
 void update_text_record_start_address(FILE *temp_text_record, int text_record_start_address, int text_record_length)
 {
-    fprintf(temp_text_record, "%c%06x%02x", 'T', text_record_start_address, text_record_length);
+    fprintf(temp_text_record, "%c %06x %02x", 'T', text_record_start_address, text_record_length);
     return;
 }
