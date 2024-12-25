@@ -4,7 +4,6 @@ Fully working two-pass-assembler for the hypothetical SIC/XE computer
 
 # Important note:
 
-- `RSUB` instruction is format 1 instruction in this assembler. (changed from format 3).
 - End record in object program contains the _same address as provided in the first line of the input assembly program_. This is actually incorrect, since end record should have the address of the first _executable_ instruction. Future revisions to the code could fix that feature.
 
 ## Notes

@@ -33,7 +33,7 @@ NORM    1   C8
 OR      3   44
 RD      3   D8
 RMO     2   AC
-RSUB    1   4C
+RSUB    3   4C
 SHIFTL  2   A4
 SHIFTR  2   A8
 SIO     1   F0

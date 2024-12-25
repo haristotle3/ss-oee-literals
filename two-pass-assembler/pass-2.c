@@ -236,6 +236,17 @@ unsigned long long int assemble_instruction(char mnemonic[], char operand[], int
     unsigned long long int assembled_object_code;
     int instruction_format = opcode_instruction_format(mnemonic);
 
+    // RSUB is a sole special case
+    // We will handle it first
+    if (strcmp(mnemonic, "RSUB") == 0)
+    {
+        // opcode ni = 0b 0000 0011
+        assembled_object_code = opcode_value(mnemonic) + 0b00000011;
+        assembled_object_code <<= 16;
+
+        return assembled_object_code;
+    }
+
     if (instruction_format == 1)
         assembled_object_code = opcode_value(mnemonic);
     else if (instruction_format == 2)
