@@ -98,9 +98,16 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
 
     unsigned long long int assembled_object_code = 0;
     init_pc_file();
-
+    int first_line = 1;
+    char start_label[MAX_TOKEN_LENGTH];
     while (fscanf(input_file, "%x\t%s\t%s\t%s", &location, label, mnemonic, operand) > 0)
     {
+        if (first_line)
+        {
+            strcpy(start_label, label);
+            first_line = 0;
+        }
+
         increment_pc();
         // No comments in intermediate file.
         if (opcode_search(mnemonic))
@@ -205,7 +212,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         if (strcmp(mnemonic, "END") != 0)
             fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * obj_code_length, assembled_object_code);
         else
-            fprintf(assembly_listing, "%04s%10s%10s%10s\n", EMPTY, label, mnemonic, EMPTY);
+            fprintf(assembly_listing, "%04s%10s%10s%10s\n", EMPTY, label, mnemonic, start_label);
 
         resb_resw_previously = 0;
     }
