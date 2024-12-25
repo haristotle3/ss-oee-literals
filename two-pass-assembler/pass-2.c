@@ -151,6 +151,7 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                 fprintf(assembly_listing, "%4s%10s%10s%10s\n", EMPTY, label, mnemonic, operand);
             else if (strcmp(label, LITERAL_POOL) == 0)
                 // in intermediate file, literal is placed in MNEMONIC column
+                // therefore literal searching functions use the mnemonic variable.
                 fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * literal_length(mnemonic), literal_value(mnemonic));
             else
                 fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
