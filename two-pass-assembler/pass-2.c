@@ -20,6 +20,8 @@ void init_pc_file();
 void init_littab_for_pass_2();
 int literal_search(char *);
 int literal_address(char *);
+int literal_value(char *);
+int literal_length(char *);
 
 FILE *PROGRAM_COUNTER_FILE;
 int PROGRAM_COUNTER;
@@ -145,7 +147,14 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
                  strcmp(mnemonic, "LTORG") == 0 ||
                  strcmp(label, LITERAL_POOL) == 0)
         {
-            fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
+            if (strcmp(mnemonic, "LTORG") == 0)
+                fprintf(assembly_listing, "%4s%10s%10s%10s\n", EMPTY, label, mnemonic, operand);
+            else if (strcmp(label, LITERAL_POOL) == 0)
+                // in intermediate file, literal is placed in MNEMONIC column
+                fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * literal_length(mnemonic), literal_value(mnemonic));
+            else
+                fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
+
             // Break into a new text record,
             // but don't create another if the previous instruction
             // was also an assembler directive.
@@ -424,6 +433,17 @@ int literal_search(char *operand)
 int literal_address(char *operand)
 {
     return LITTAB.table[literal_search(operand)].address;
+}
+
+int literal_value(char *operand)
+{
+    return LITTAB.table[literal_search(operand)].value;
+}
+
+int literal_length(char *operand)
+{
+    // returns literal length (in bytes)
+    return LITTAB.table[literal_search(operand)].length;
 }
 
 void update_text_record_start_address(FILE *temp_text_record, int text_record_start_address, int text_record_length)
