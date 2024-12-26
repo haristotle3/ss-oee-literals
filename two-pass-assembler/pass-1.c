@@ -177,13 +177,13 @@ int passOne(FILE *input_file, FILE *intermediate_file)
         fscanf(input_file, "%s\t%s\t%s", label, mnemonic, operand);
     }
 
-    int program_length = LOCCTR - START;
     fprintf(intermediate_file, "%04x%10s%10s%10s\n", 0000, EMPTY, "END", EMPTY);
     assign_addresses_to_literals(&LOCCTR);
     print_literals_to_intermediate_file(intermediate_file);
 
     print_littab();
 
+    int program_length = LOCCTR - START;
     return program_length;
 }
 
