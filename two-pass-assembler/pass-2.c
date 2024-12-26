@@ -154,15 +154,10 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         }
         else if (strcmp(mnemonic, "RESW") == 0 ||
                  strcmp(mnemonic, "RESB") == 0 ||
-                 strcmp(mnemonic, "LTORG") == 0 ||
-                 strcmp(label, LITERAL_POOL) == 0)
+                 strcmp(mnemonic, "LTORG") == 0)
         {
             if (strcmp(mnemonic, "LTORG") == 0)
                 fprintf(assembly_listing, "%4s%10s%10s%10s\n", EMPTY, label, mnemonic, operand);
-            else if (strcmp(label, LITERAL_POOL) == 0)
-                // in intermediate file, literal is placed in MNEMONIC column
-                // therefore literal searching functions use the mnemonic variable.
-                fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * literal_length(mnemonic), literal_value(mnemonic));
             else
                 fprintf(assembly_listing, "%04x%10s%10s%10s\n", location, label, mnemonic, operand);
 
@@ -189,6 +184,12 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             update_text_record_start_address(temp_text_record, location, text_record_length);
 
         int obj_code_length = get_object_code_length(assembled_object_code);
+        if (strcmp(label, LITERAL_POOL) == 0)
+        {
+            obj_code_length = literal_length(mnemonic);
+            assembled_object_code = literal_value(mnemonic);
+        }
+
         if (text_record_length + obj_code_length > 30) // 30 bytes take up 60 columns, which is maximum that one text record can hold.
         {
             fprintf(temp_text_record, "\n");
@@ -200,16 +201,25 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
             text_record_start_address = location;
             fprintf(temp_text_record, "%c %06x %02x", 'T', text_record_start_address, text_record_length);
         }
-        else
+        else if (strcmp(mnemonic, "END") != 0) // No object program for END, skip it.
             text_record_length += obj_code_length;
 
         // Write the assembled object code.
         // %0*x is variable padding length, length is obj_code_length.
         // Multiply by 2 to obj_code_length for leading zeroes.
-        fprintf(temp_text_record, " %0*llx", 2 * obj_code_length, assembled_object_code);
-        num_instructions_in_one_text_record++;
 
         if (strcmp(mnemonic, "END") != 0)
+        {
+            // No object program for END, skip it.
+            fprintf(temp_text_record, " %0*llx", 2 * obj_code_length, assembled_object_code);
+            num_instructions_in_one_text_record++;
+        }
+
+        if (strcmp(label, LITERAL_POOL) == 0)
+            // in intermediate file, literal is placed in MNEMONIC column
+            // therefore literal searching functions use the mnemonic variable.
+            fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * literal_length(mnemonic), literal_value(mnemonic));
+        else if (strcmp(mnemonic, "END") != 0)
             fprintf(assembly_listing, "%04x%10s%10s%10s%4s%0*llx\n", location, label, mnemonic, operand, " ", 2 * obj_code_length, assembled_object_code);
         else
             fprintf(assembly_listing, "%04s%10s%10s%10s\n", EMPTY, label, mnemonic, start_label);
