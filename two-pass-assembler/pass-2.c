@@ -81,9 +81,9 @@ int passTwo(FILE *input_file, FILE *object_program, FILE *assembly_listing)
         return ERROR_VALUE;
     }
 
-    // Program length in decimal.
+    // Program length in hexadecimal.
     FILE *program_length = fopen("pass-1-outputs/program_length.txt", "r");
-    fscanf(program_length, "%d", &length);
+    fscanf(program_length, "%x", &length);
     fclose(program_length);
 
     // Write header record to object program.

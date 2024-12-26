@@ -45,8 +45,8 @@ int main()
     fclose(input_file);
     fclose(intermediate_file);
 
-    // Program length is in decimal.
-    fprintf(length, "%d", program_length);
+    // Program length is in hexadecimal.
+    fprintf(length, "%x", program_length);
     fclose(length);
     return 0;
 }
