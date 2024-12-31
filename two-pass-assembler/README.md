@@ -5,6 +5,7 @@ Fully working two-pass-assembler for the hypothetical SIC/XE computer
 # Important note:
 
 - End record in object program contains the _same address as provided in the first line of the input assembly program_. This is actually incorrect, since end record should have the address of the first _executable_ instruction. Future revisions to the code could fix that feature.
+- These C programs works properly only on a windows machine. For linux or other machines, replace the <windows.h> header file and CreateDirectory() function with their equivalent header file and function.
 
 ## Notes
 
